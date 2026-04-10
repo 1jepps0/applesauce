@@ -42,6 +42,8 @@ Current BSD support is intended for FreeBSD and OpenBSD first. FreeBSD and Drago
 
 1. Edit `00_config.sh`.
 2. Confirm host inventory, ports, admin subnets, and per-host allowed service matrix.
+   Prefer `HOSTS` entries in the form `role=ip_or_fqdn` so the host inventory matches
+   `HOST_SERVICE_MATRIX`, `HOST_SERVICE_CHECKS`, and `HOST_ROLES`.
    Port entries may be plain TCP ports like `443` or protocol-suffixed entries like `53/udp`.
 3. Run:
 
@@ -65,6 +67,14 @@ bash ./30_linux_hardening.sh audit
 
 5. Only move to `enforce` after you confirm scoring requirements.
 
+For host-local scripts, add `--remote` to fan out over the systems in `HOSTS` via SSH:
+
+```bash
+bash ./30_linux_hardening.sh audit --remote
+bash ./40_firewall_baseline.sh audit --remote
+bash ./60_account_audit.sh --remote
+```
+
 ## PCDC-specific usage notes
 
 - Keep `HOSTS` restricted to systems your team owns.
@@ -73,6 +83,7 @@ bash ./30_linux_hardening.sh audit
 - BSD is mentioned in the guide, but this toolkit is Linux-first. Use it for audit/reporting on BSD unless you add BSD-specific handlers.
 - For BSD hosts, update `REQUIRED_SERVICES` to BSD-native names such as `syslogd` instead of Linux-specific examples like `rsyslog`.
 - `HOST_SERVICE_MATRIX` supports protocol suffixes such as `53/udp` for DNS.
+- Remote host-local execution uses `SSH_AUTH_MODE`, `SSH_USER`, `SSH_PORT`, and either `SSH_KEY_PATH` or `sshpass`-backed password settings from `00_config.sh`.
 
 ## Recommended operator flow
 
@@ -88,8 +99,9 @@ bash ./30_linux_hardening.sh audit
 ## Safety notes
 
 - `70_credential_rotation.sh` is intentionally conservative and only rotates explicitly listed admin accounts by default.
+- `70_credential_rotation.sh` expects `PASSWORD_FILE` to point to a protected file outside the repository before `enforce` mode.
 - Firewall and hardening scripts create backups before changes where possible.
-- Service allow-rules are config-driven. They do not auto-open ports based on discovery.
+- Service allow-rules are config-driven and now refuse to enforce when the local host is not mapped to a per-host service policy.
 - Host and service checks should be kept current in `00_config.sh` to avoid false confidence.
 - `90_vuln_wrapper.sh` defaults to non-network checks because the competition rules prohibit offensive scans.
 

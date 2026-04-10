@@ -1,11 +1,26 @@
 #!/usr/bin/env bash
 
+# Compares local listening ports against the mapped service policy for the host
+# and flags unexpected listeners.
+
 SCRIPT_BASENAME="$(basename "$0" .sh)"
 # shellcheck source=lib/common.sh
 source "$(cd "$(dirname "$0")" && pwd)/lib/common.sh"
 
+REMOTE_MODE="false"
+if [[ "${1:-}" == "--remote" ]]; then
+  REMOTE_MODE="true"
+  shift
+fi
+[[ $# -eq 0 ]] || die "Unsupported argument(s). Use optional --remote only."
+
 REPORT_FILE="$(report_file_for "${SCRIPT_BASENAME}")"
 SUMMARY_FILE="$(summary_file_for "${SCRIPT_BASENAME}")"
+
+if [[ "${REMOTE_MODE}" == "true" ]]; then
+  run_current_script_remote_across_hosts "${SUMMARY_FILE}" "process/port audit"
+  exit 0
+fi
 
 write_csv_line "${REPORT_FILE}" "category" "target" "result" "details"
 
@@ -14,7 +29,7 @@ record() {
   log "INFO" "$1 | $2 | $3 | $4"
 }
 
-expected_ports="$(local_service_ports | sed 's|/udp||g; s|/tcp||g')"
+expected_ports="$(local_service_ports | sed 's|/udp||g; s|/tcp||g')" || die "Could not determine local service policy. Map this host in HOSTS and HOST_SERVICE_MATRIX before running the process/port audit."
 
 if command_exists ss; then
   while IFS= read -r line; do

@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Creates a markdown incident report template populated with basic attack and
+# host details for competition reporting.
+
 SCRIPT_BASENAME="$(basename "$0" .sh)"
 # shellcheck source=lib/common.sh
 source "$(cd "$(dirname "$0")" && pwd)/lib/common.sh"

@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Shared toolkit configuration for host inventory, service policy, SSH access,
+# credential rotation settings, and feature toggles.
+
 # PCDC 2026 guide notes relevant to this toolkit:
 # - Blue team environments may include multiple Linux distros and BSD.
 # - Example Linux references include CentOS and Ubuntu.
@@ -16,20 +19,26 @@ INCIDENT_REPORT_DIR="${REPORT_DIR}/incident_reports"
 COMPETITION_MODE="true"
 
 HOSTS=(
-  "jumpbox"
-  "web01"
-  "dns01"
-  "mail01"
-  "db01"
-  "files01"
-  "mon01"
+  "jumpbox=10.0.0.72"
+  "web01=10.0.0.154"
+  "dns01=10.0.0.191"
+  "mail01=10.0.0.215"
+)
+
+# Prefer HOSTS entries in the form role=ip_or_fqdn once you know the host mapping from
+# the blue-team packet, for example:
+# HOSTS=(
+#   "jumpbox=10.0.0.72"
+#   "web01=10.0.0.154"
+# )
+# Optional alias map when HOSTS must remain plain addresses:
+# HOST_ALIASES=(
+#   "10.0.0.72:jumpbox"
+# )
+HOST_ALIASES=(
 )
 
 DOMAINS=(
-  "corp.local"
-  "www.corp.local"
-  "mail.corp.local"
-  "db.corp.local"
 )
 
 SCORING_PORTS=(
@@ -46,6 +55,13 @@ SSH_USER="root"
 SSH_PORT="22"
 SSH_KEY_PATH="${HOME}/.ssh/id_rsa"
 SSH_CONNECT_TIMEOUT="5"
+# SSH auth modes:
+# - key: use SSH_KEY_PATH with non-interactive key auth
+# - password: use sshpass with SSH_PASSWORD, SSH_PASSWORD_FILE, or SSH_PASSWORD_ENV
+SSH_AUTH_MODE="password"
+SSH_PASSWORD="cookie13433"
+SSH_PASSWORD_FILE=""
+SSH_PASSWORD_ENV=""
 
 ALLOWED_ADMIN_USERS=(
   "root"
@@ -55,6 +71,8 @@ ROTATE_ADMIN_USERS=(
   "root"
 )
 
+# Keep rotation secrets outside the repo and set this explicitly before enforce mode,
+# for example "${HOME}/.config/pcdc_toolkit/passwords.txt".
 PASSWORD_FILE=""
 
 REQUIRED_SERVICES=(

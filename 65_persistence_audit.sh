@@ -1,11 +1,26 @@
 #!/usr/bin/env bash
 
+# Surveys common persistence locations including cron paths, systemd units,
+# startup directories, BSD startup files, and SUID/SGID files.
+
 SCRIPT_BASENAME="$(basename "$0" .sh)"
 # shellcheck source=lib/common.sh
 source "$(cd "$(dirname "$0")" && pwd)/lib/common.sh"
 
+REMOTE_MODE="false"
+if [[ "${1:-}" == "--remote" ]]; then
+  REMOTE_MODE="true"
+  shift
+fi
+[[ $# -eq 0 ]] || die "Unsupported argument(s). Use optional --remote only."
+
 REPORT_FILE="$(report_file_for "${SCRIPT_BASENAME}")"
 SUMMARY_FILE="$(summary_file_for "${SCRIPT_BASENAME}")"
+
+if [[ "${REMOTE_MODE}" == "true" ]]; then
+  run_current_script_remote_across_hosts "${SUMMARY_FILE}" "persistence audit"
+  exit 0
+fi
 
 write_csv_line "${REPORT_FILE}" "category" "path" "result" "details"
 

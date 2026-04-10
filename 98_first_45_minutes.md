@@ -32,6 +32,7 @@ cat /etc/os-release
 
 - Populate or update `00_config.sh`.
 - Set `HOSTS`, `HOST_SERVICE_MATRIX`, `HOST_SERVICE_CHECKS`, `HOST_ROLES`, admin CIDRs, and SSH settings.
+- Prefer `HOSTS` entries like `role=ip_or_fqdn` so every host maps cleanly to its service policy before firewall enforcement.
 - Run host discovery and service audit from the jumpbox.
 - Save the first report bundle immediately.
 
@@ -116,5 +117,6 @@ Do not:
 
 - run broad network scans against competition assets
 - rotate every password blindly in the first 45 minutes
+- store rotation passwords inside the toolkit repository
 - disable services without confirming scoring requirements
 - make unlogged changes you cannot explain later

@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Runs policy-limited exposure checks such as scoped nmap, Lynis, and simple
+# filesystem findings without acting as a broad scanner by default.
+
 SCRIPT_BASENAME="$(basename "$0" .sh)"
 # shellcheck source=lib/common.sh
 source "$(cd "$(dirname "$0")" && pwd)/lib/common.sh"
@@ -15,16 +18,18 @@ record() {
 }
 
 for host in "${HOSTS[@]}"; do
+  target_host="$(host_address "${host}")"
+  display_host="$(host_display "${host}")"
   if [[ "${ENABLE_NMAP}" == "true" && "${ALLOW_NETWORK_SCANNING}" == "true" ]] && command_exists nmap; then
     port_list="$(service_ports_for_host "${host}" | sed 's|/udp||g; s|/tcp||g')"
-    nmap_output="$(nmap -Pn -sT -p "${port_list}" "${host}" 2>/dev/null || true)"
+    nmap_output="$(nmap -Pn -sT -p "${port_list}" "${target_host}" 2>/dev/null || true)"
     if grep -q 'open' <<<"${nmap_output}"; then
-      record "nmap" "${host}" "info" "Open ports detected" "Review unexpected listeners against HOST_SERVICE_MATRIX"
+      record "nmap" "${display_host}" "info" "Open ports detected" "Review unexpected listeners against HOST_SERVICE_MATRIX"
     else
-      record "nmap" "${host}" "warn" "No configured open ports detected" "Validate host inventory and service matrix"
+      record "nmap" "${display_host}" "warn" "No configured open ports detected" "Validate host inventory and service matrix"
     fi
   else
-    record "nmap" "${host}" "warn" "nmap unavailable, disabled, or blocked by policy" "Keep ALLOW_NETWORK_SCANNING=false during competition unless the action is explicitly allowed"
+    record "nmap" "${display_host}" "warn" "nmap unavailable, disabled, or blocked by policy" "Keep ALLOW_NETWORK_SCANNING=false during competition unless the action is explicitly allowed"
   fi
 done
 

@@ -1,20 +1,38 @@
 #!/usr/bin/env bash
 
+# Audits or enforces a minimal host firewall baseline for the detected backend,
+# preserving admin SSH access and the mapped service ports for the host.
+
 SCRIPT_BASENAME="$(basename "$0" .sh)"
 # shellcheck source=lib/common.sh
 source "$(cd "$(dirname "$0")" && pwd)/lib/common.sh"
 
-MODE="$(parse_mode "${1:-audit}")"
-SUMMARY_FILE="$(summary_file_for "${SCRIPT_BASENAME}_${MODE}")"
-BACKEND="$(detect_firewall_backend)"
+MODE="audit"
+REMOTE_MODE="false"
+parse_args() {
+  while (($# > 0)); do
+    case "$1" in
+      audit|enforce|verify)
+        MODE="$(parse_mode "$1")"
+        ;;
+      --remote)
+        REMOTE_MODE="true"
+        ;;
+      *)
+        die "Unsupported argument '$1'. Use audit|enforce|verify and optional --remote."
+        ;;
+    esac
+    shift
+  done
+}
 
-if [[ "${BACKEND}" == "none" ]]; then
-  die "No supported firewall backend found"
-fi
+parse_args "$@"
+SUMMARY_FILE="$(summary_file_for "${SCRIPT_BASENAME}_${MODE}")"
 
 build_allow_ports() {
-  local ports=("${SCORING_PORTS[@]}")
-  printf '%s\n' "${ports[@]}" | sort -u
+  local ports
+  ports="$(local_service_ports)" || die "Could not determine local service policy. Map this host in HOSTS and HOST_SERVICE_MATRIX before enforcing firewall changes."
+  printf '%s\n' "${ports}" | tr ',' '\n' | sed '/^\s*$/d' | sort -u
 }
 
 audit_backend() {
@@ -118,6 +136,17 @@ enforce_iptables() {
   done < <(build_allow_ports)
 }
 
+if [[ "${REMOTE_MODE}" == "true" ]]; then
+  run_current_script_remote_across_hosts "${SUMMARY_FILE}" "firewall baseline ${MODE}" "${MODE}"
+  exit 0
+fi
+
+BACKEND="$(detect_firewall_backend)"
+
+if [[ "${BACKEND}" == "none" ]]; then
+  die "No supported firewall backend found"
+fi
+
 case "${MODE}" in
   audit|verify)
     audit_backend
@@ -137,6 +166,7 @@ esac
   printf 'Mode: %s\n' "${MODE}"
   printf 'Backend: %s\n' "${BACKEND}"
   printf 'OS flavor: %s\n' "$(os_flavor)"
+  printf 'Allowed ports source: %s\n' "$(local_service_ports 2>/dev/null || printf 'unresolved')"
   printf 'Log: %s\n' "${LOG_FILE}"
 } >"${SUMMARY_FILE}"
 

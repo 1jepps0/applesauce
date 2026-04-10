@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Copies the toolkit to remote hosts and runs selected remote commands using the
+# configured SSH authentication settings.
+
 SCRIPT_BASENAME="$(basename "$0" .sh)"
 # shellcheck source=lib/common.sh
 source "$(cd "$(dirname "$0")" && pwd)/lib/common.sh"
@@ -11,18 +14,19 @@ REMOTE_STAGE_DIR="/tmp/pcdc_toolkit_stage_${TIMESTAMP}"
 run_remote() {
   local host="$1"
   local command="$2"
-  ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -o ConnectTimeout="${SSH_CONNECT_TIMEOUT}" \
-    -i "${SSH_KEY_PATH}" -p "${SSH_PORT}" "${SSH_USER}@${host}" "${command}"
+  ssh_to_host "${host}" "${command}"
 }
 
 copy_to_remote() {
   local host="$1"
-  scp -q -o BatchMode=yes -o StrictHostKeyChecking=accept-new -o ConnectTimeout="${SSH_CONNECT_TIMEOUT}" \
-    -i "${SSH_KEY_PATH}" -P "${SSH_PORT}" -r \
+  scp_to_host "${host}" \
     "${REPO_ROOT}/00_config.sh" \
     "${REPO_ROOT}/lib" \
-    "${REPO_ROOT}"/[1-9][0-9]_*.sh \
-    "${SSH_USER}@${host}:${REMOTE_STAGE_DIR}/"
+    "${REPO_ROOT}"/[1-9][0-9]_*.sh
+}
+
+remote_listener_snapshot_cmd() {
+  printf '%s\n' "hostname; uname -a; if command -v ss >/dev/null 2>&1; then ss -tulpn | head; elif command -v sockstat >/dev/null 2>&1; then sockstat -4 -6 -l | head; elif command -v netstat >/dev/null 2>&1; then netstat -an | grep -E 'LISTEN|udp' | head; else echo 'no supported listener tool found'; fi"
 }
 
 install_remote_toolkit() {
@@ -35,23 +39,23 @@ install_remote_toolkit() {
 }
 
 for host in "${HOSTS[@]}"; do
-  if ! tcp_check "${host}" "${SSH_PORT}"; then
-    log "WARN" "Skipping ${host}; SSH port ${SSH_PORT} unreachable"
+  target_host="$(host_address "${host}")"
+  if ! tcp_check "${target_host}" "${SSH_PORT}"; then
+    log "WARN" "Skipping $(host_display "${host}"); SSH port ${SSH_PORT} unreachable"
     continue
   fi
 
   case "${ACTION}" in
     push)
-      run_cmd false ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -o ConnectTimeout="${SSH_CONNECT_TIMEOUT}" \
-        -i "${SSH_KEY_PATH}" -p "${SSH_PORT}" "${SSH_USER}@${host}" "rm -rf '${REMOTE_STAGE_DIR}' && mkdir -p '${REMOTE_STAGE_DIR}'"
-      run_cmd false copy_to_remote "${host}"
-      run_cmd false install_remote_toolkit "${host}"
+      run_cmd false run_remote "${target_host}" "rm -rf '${REMOTE_STAGE_DIR}' && mkdir -p '${REMOTE_STAGE_DIR}'"
+      run_cmd false copy_to_remote "${target_host}"
+      run_cmd false install_remote_toolkit "${target_host}"
       ;;
     audit)
-      run_cmd true run_remote "${host}" "hostname; uname -a; ss -tulpn | head"
+      run_cmd true run_remote "${target_host}" "$(remote_listener_snapshot_cmd)"
       ;;
     service-audit)
-      run_cmd true run_remote "${host}" "cd ${REMOTE_TOOLKIT_DIR} && bash ./20_service_audit.sh"
+      run_cmd true run_remote "${target_host}" "cd ${REMOTE_TOOLKIT_DIR} && bash ./20_service_audit.sh"
       ;;
     *)
       die "Unsupported action '${ACTION}'. Use push, audit, or service-audit."

@@ -1,11 +1,26 @@
 #!/usr/bin/env bash
 
+# Reviews local account risk indicators such as unexpected admins, SSH keys,
+# sudoers, cron usage, and listening sockets.
+
 SCRIPT_BASENAME="$(basename "$0" .sh)"
 # shellcheck source=lib/common.sh
 source "$(cd "$(dirname "$0")" && pwd)/lib/common.sh"
 
+REMOTE_MODE="false"
+if [[ "${1:-}" == "--remote" ]]; then
+  REMOTE_MODE="true"
+  shift
+fi
+[[ $# -eq 0 ]] || die "Unsupported argument(s). Use optional --remote only."
+
 REPORT_FILE="$(report_file_for "${SCRIPT_BASENAME}")"
 SUMMARY_FILE="$(summary_file_for "${SCRIPT_BASENAME}")"
+
+if [[ "${REMOTE_MODE}" == "true" ]]; then
+  run_current_script_remote_across_hosts "${SUMMARY_FILE}" "account audit"
+  exit 0
+fi
 
 write_csv_line "${REPORT_FILE}" "category" "item" "result" "details"
 
@@ -50,6 +65,11 @@ if command_exists ss; then
     [[ -n "${line}" ]] || continue
     record "listener" "socket" "info" "${line}"
   done < <(ss -tulpnH 2>/dev/null || true)
+elif command_exists sockstat; then
+  while IFS= read -r line; do
+    [[ -n "${line}" ]] || continue
+    record "listener" "socket" "info" "${line}"
+  done < <(sockstat -4 -6 -l 2>/dev/null | tail -n +2 || true)
 fi
 
 {

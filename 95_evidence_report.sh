@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Bundles the latest reports and incident notes into a single evidence
+# directory for quick handoff and scoring support.
+
 SCRIPT_BASENAME="$(basename "$0" .sh)"
 # shellcheck source=lib/common.sh
 source "$(cd "$(dirname "$0")" && pwd)/lib/common.sh"

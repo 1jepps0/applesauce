@@ -1,11 +1,26 @@
 #!/usr/bin/env bash
 
+# Reports pending package updates using the host's native package manager to
+# highlight obvious patch backlog without changing the system.
+
 SCRIPT_BASENAME="$(basename "$0" .sh)"
 # shellcheck source=lib/common.sh
 source "$(cd "$(dirname "$0")" && pwd)/lib/common.sh"
 
+REMOTE_MODE="false"
+if [[ "${1:-}" == "--remote" ]]; then
+  REMOTE_MODE="true"
+  shift
+fi
+[[ $# -eq 0 ]] || die "Unsupported argument(s). Use optional --remote only."
+
 REPORT_FILE="$(report_file_for "${SCRIPT_BASENAME}")"
 SUMMARY_FILE="$(summary_file_for "${SCRIPT_BASENAME}")"
+
+if [[ "${REMOTE_MODE}" == "true" ]]; then
+  run_current_script_remote_across_hosts "${SUMMARY_FILE}" "package audit"
+  exit 0
+fi
 
 write_csv_line "${REPORT_FILE}" "tool" "result" "details"
 

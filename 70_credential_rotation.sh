@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Verifies or rotates explicitly listed admin account passwords using a supplied
+# password source, with conservative safeguards around secret handling.
+
 SCRIPT_BASENAME="$(basename "$0" .sh)"
 # shellcheck source=lib/common.sh
 source "$(cd "$(dirname "$0")" && pwd)/lib/common.sh"
@@ -12,6 +15,18 @@ load_passwords() {
     die "PASSWORD_FILE is not set. Populate 00_config.sh before rotation."
   fi
   [[ -f "${PASSWORD_FILE}" ]] || die "Password file ${PASSWORD_FILE} not found"
+  case "${PASSWORD_FILE}" in
+    "${REPO_ROOT}"/*)
+      die "Password file ${PASSWORD_FILE} is inside the repository. Move it to a protected path outside the repo before enforce mode."
+      ;;
+  esac
+  if command_exists stat; then
+    local perms
+    perms="$(stat -c '%a' "${PASSWORD_FILE}" 2>/dev/null || stat -f '%Lp' "${PASSWORD_FILE}" 2>/dev/null || true)"
+    if [[ -n "${perms}" && ! "${perms}" =~ ^[0-7]?[0-6]0$ && ! "${perms}" =~ ^[0-7]?[0-4]0$ ]]; then
+      log "WARN" "Password file ${PASSWORD_FILE} permissions are ${perms}; prefer 600 or 400"
+    fi
+  fi
   mapfile -t ROTATION_PASSWORDS <"${PASSWORD_FILE}"
   [[ "${#ROTATION_PASSWORDS[@]}" -ge "${#ROTATE_ADMIN_USERS[@]}" ]] || die "Password file does not contain enough entries"
 }
@@ -19,6 +34,26 @@ load_passwords() {
 verify_account() {
   local user="$1"
   id "${user}" >/dev/null 2>&1
+}
+
+rotate_account_password() {
+  local user="$1"
+  local password="$2"
+
+  if command_exists chpasswd; then
+    printf '%s:%s\n' "${user}" "${password}" | chpasswd
+    return 0
+  fi
+
+  case "$(os_flavor)" in
+    freebsd|dragonfly)
+      command_exists pw || die "pw is required to rotate passwords on $(os_flavor)"
+      printf '%s\n' "${password}" | pw usermod "${user}" -h 0
+      ;;
+    *)
+      die "Credential rotation enforce mode is unsupported on $(os_flavor). Use audit/verify or rotate manually on this platform."
+      ;;
+  esac
 }
 
 if [[ "${MODE}" == "audit" || "${MODE}" == "verify" ]]; then
@@ -38,7 +73,7 @@ else
       log "WARN" "Skipping missing account ${user}"
       continue
     fi
-    printf '%s:%s\n' "${user}" "${password}" | chpasswd
+    rotate_account_password "${user}" "${password}"
     log "INFO" "Rotated password for ${user}"
   done
 fi

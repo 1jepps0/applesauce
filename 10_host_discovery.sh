@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Checks configured hosts for ICMP reachability, name resolution, and expected
+# TCP/UDP port reachability from the jumpbox.
+
 SCRIPT_BASENAME="$(basename "$0" .sh)"
 # shellcheck source=lib/common.sh
 source "$(cd "$(dirname "$0")" && pwd)/lib/common.sh"
@@ -12,9 +15,13 @@ write_csv_line "${REPORT_FILE}" "host" "role" "ping" "dns" "reachable_ports" "fa
 up_count=0
 down_count=0
 
+validate_host_policy_mappings
+
 for host in "${HOSTS[@]}"; do
-  role="$(host_role "${host}")"
-  if ping_host "${host}"; then
+  target_host="$(host_address "${host}")"
+  display_host="$(host_display "${host}")"
+  role="$(host_role_for_entry "${host}")"
+  if ping_host "${target_host}"; then
     ping_state="up"
     ((up_count+=1))
   else
@@ -22,8 +29,10 @@ for host in "${HOSTS[@]}"; do
     ((down_count+=1))
   fi
 
-  if dns_check "${host}"; then
+  if dns_check "${target_host}"; then
     dns_state="ok"
+  elif [[ $? -eq 2 ]]; then
+    dns_state="n/a"
   else
     dns_state="fail"
   fi
@@ -34,13 +43,13 @@ for host in "${HOSTS[@]}"; do
   for spec in "${host_ports[@]}"; do
     parse_service_spec "${spec}"
     if [[ "${SERVICE_PROTO}" == "udp" ]]; then
-      if udp_check "${host}" "${SERVICE_PORT}"; then
+      if udp_check "${target_host}" "${SERVICE_PORT}"; then
         reachable+=("${SERVICE_PORT}/udp")
       else
         failed+=("${SERVICE_PORT}/udp")
       fi
     else
-      if tcp_check "${host}" "${SERVICE_PORT}"; then
+      if tcp_check "${target_host}" "${SERVICE_PORT}"; then
         reachable+=("${SERVICE_PORT}/tcp")
       else
         failed+=("${SERVICE_PORT}/tcp")
@@ -50,14 +59,14 @@ for host in "${HOSTS[@]}"; do
 
   write_csv_line \
     "${REPORT_FILE}" \
-    "${host}" \
+    "${display_host}" \
     "${role}" \
     "${ping_state}" \
     "${dns_state}" \
     "$(IFS=' ' ; echo "${reachable[*]:-none}")" \
     "$(IFS=' ' ; echo "${failed[*]:-none}")"
 
-  log "INFO" "Host ${host} role=${role} ping=${ping_state} dns=${dns_state} reachable=${reachable[*]:-none} failed=${failed[*]:-none}"
+  log "INFO" "Host ${display_host} role=${role} ping=${ping_state} dns=${dns_state} reachable=${reachable[*]:-none} failed=${failed[*]:-none}"
 done
 
 {

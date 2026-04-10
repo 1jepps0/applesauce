@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Installs a cron entry that runs one toolkit script on a recurring schedule and
+# appends output to a dedicated cron log.
+
 SCRIPT_BASENAME="$(basename "$0" .sh)"
 # shellcheck source=lib/common.sh
 source "$(cd "$(dirname "$0")" && pwd)/lib/common.sh"
