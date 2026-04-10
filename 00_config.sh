@@ -36,6 +36,7 @@ SCORING_PORTS=(
   22
   80
   443
+  53/udp
 )
 
 ADMIN_SOURCE_CIDRS=(
@@ -62,6 +63,11 @@ REQUIRED_SERVICES=(
   "rsyslog"
 )
 
+# For BSD targets, replace Linux-specific examples like "rsyslog" with native services
+# such as "syslogd", and prefer pf-backed firewall handling.
+# OpenBSD commonly uses rcctl + pf + syspatch/pkg_add, while FreeBSD commonly uses
+# service/sysrc + pf + pkg.
+
 OPTIONAL_DISABLE_SERVICES=(
   "avahi-daemon"
   "cups"
@@ -71,7 +77,7 @@ OPTIONAL_DISABLE_SERVICES=(
 HOST_SERVICE_MATRIX=(
   "jumpbox:22"
   "web01:22,80,443"
-  "dns01:22,53"
+  "dns01:22,53/tcp,53/udp"
   "mail01:22,25,110,143,465,587,993,995"
   "db01:22,3306,5432"
   "files01:22,139,445"

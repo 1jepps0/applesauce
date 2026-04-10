@@ -46,11 +46,20 @@ for host in "${HOSTS[@]}"; do
   fi
 
   IFS=',' read -r -a host_ports <<<"$(service_ports_for_host "${host}")"
-  for port in "${host_ports[@]}"; do
-    if tcp_check "${host}" "${port}"; then
-      run_check "${host}" "${role}" "service" "tcp/${port}" "pass" "TCP port reachable"
+  for spec in "${host_ports[@]}"; do
+    parse_service_spec "${spec}"
+    if [[ "${SERVICE_PROTO}" == "udp" ]]; then
+      if udp_check "${host}" "${SERVICE_PORT}"; then
+        run_check "${host}" "${role}" "service" "udp/${SERVICE_PORT}" "pass" "UDP port reachable"
+      else
+        run_check "${host}" "${role}" "service" "udp/${SERVICE_PORT}" "warn" "UDP port check inconclusive or unreachable"
+      fi
     else
-      run_check "${host}" "${role}" "service" "tcp/${port}" "fail" "TCP port unreachable"
+      if tcp_check "${host}" "${SERVICE_PORT}"; then
+        run_check "${host}" "${role}" "service" "tcp/${SERVICE_PORT}" "pass" "TCP port reachable"
+      else
+        run_check "${host}" "${role}" "service" "tcp/${SERVICE_PORT}" "fail" "TCP port unreachable"
+      fi
     fi
   done
 

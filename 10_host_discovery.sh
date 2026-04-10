@@ -31,11 +31,20 @@ for host in "${HOSTS[@]}"; do
   reachable=()
   failed=()
   IFS=',' read -r -a host_ports <<<"$(service_ports_for_host "${host}")"
-  for port in "${host_ports[@]}"; do
-    if tcp_check "${host}" "${port}"; then
-      reachable+=("${port}")
+  for spec in "${host_ports[@]}"; do
+    parse_service_spec "${spec}"
+    if [[ "${SERVICE_PROTO}" == "udp" ]]; then
+      if udp_check "${host}" "${SERVICE_PORT}"; then
+        reachable+=("${SERVICE_PORT}/udp")
+      else
+        failed+=("${SERVICE_PORT}/udp")
+      fi
     else
-      failed+=("${port}")
+      if tcp_check "${host}" "${SERVICE_PORT}"; then
+        reachable+=("${SERVICE_PORT}/tcp")
+      else
+        failed+=("${SERVICE_PORT}/tcp")
+      fi
     fi
   done
 

@@ -6,6 +6,7 @@ source "$(cd "$(dirname "$0")" && pwd)/lib/common.sh"
 
 MODE="$(parse_mode "${1:-audit}")"
 SUMMARY_FILE="$(summary_file_for "${SCRIPT_BASENAME}_${MODE}")"
+SSHD_CONFIG_FILE="/etc/ssh/sshd_config"
 
 changes=0
 findings=0
@@ -23,7 +24,7 @@ apply_change() {
 ensure_sshd_setting() {
   local key="$1"
   local value="$2"
-  local file="/etc/ssh/sshd_config"
+  local file="${SSHD_CONFIG_FILE}"
 
   [[ -f "${file}" ]] || {
     record_finding "Missing ${file}"
@@ -38,7 +39,11 @@ ensure_sshd_setting() {
   if [[ "${MODE}" == "enforce" ]]; then
     backup_file "${file}"
     if grep -qiE "^[#[:space:]]*${key}[[:space:]]+" "${file}"; then
-      sed -i -E "s|^[#[:space:]]*${key}[[:space:]]+.*|${key} ${value}|I" "${file}"
+      if is_bsd; then
+        sed -i '' -E "s|^[#[:space:]]*${key}[[:space:]]+.*|${key} ${value}|I" "${file}"
+      else
+        sed -i -E "s|^[#[:space:]]*${key}[[:space:]]+.*|${key} ${value}|I" "${file}"
+      fi
     else
       printf '\n%s %s\n' "${key}" "${value}" >>"${file}"
     fi
@@ -49,39 +54,40 @@ ensure_sshd_setting() {
 ensure_service_state() {
   local service="$1"
   local desired="$2"
-  if ! command_exists systemctl; then
-    record_finding "systemctl not available; cannot manage ${service}"
+  if ! command_exists systemctl && ! command_exists service; then
+    record_finding "No supported service manager available; cannot manage ${service}"
     return 1
   fi
 
   case "${desired}" in
     enabled)
-      if safe_systemctl_is_enabled "${service}"; then
+      if service_is_enabled "${service}"; then
         return 0
       fi
       record_finding "Service ${service} is not enabled"
       if [[ "${MODE}" == "enforce" ]]; then
-        run_cmd false systemctl enable "${service}"
+        service_manage "enable" "${service}"
         apply_change "Enabled ${service}"
       fi
       ;;
     active)
-      if safe_systemctl_is_active "${service}"; then
+      if service_is_active "${service}"; then
         return 0
       fi
       record_finding "Service ${service} is not active"
       if [[ "${MODE}" == "enforce" ]]; then
-        run_cmd false systemctl start "${service}"
+        service_manage "start" "${service}"
         apply_change "Started ${service}"
       fi
       ;;
     disabled)
-      if ! safe_systemctl_is_enabled "${service}" && ! safe_systemctl_is_active "${service}"; then
+      if ! service_is_enabled "${service}" && ! service_is_active "${service}"; then
         return 0
       fi
       record_finding "Service ${service} should be disabled"
       if [[ "${MODE}" == "enforce" ]]; then
-        run_cmd true systemctl disable --now "${service}"
+        service_manage "disable" "${service}"
+        service_manage "stop" "${service}"
         apply_change "Disabled ${service}"
       fi
       ;;
@@ -98,13 +104,9 @@ apply_sysctl_control() {
   fi
   record_finding "Expected sysctl ${key}=${value}, found ${current:-unset}"
   if [[ "${MODE}" == "enforce" ]]; then
-    local file="/etc/sysctl.d/99-pcdc-baseline.conf"
-    [[ -f "${file}" ]] && backup_file "${file}"
-    if [[ -f "${file}" ]] && grep -qE "^${key}=" "${file}"; then
-      sed -i -E "s|^${key}=.*|${key}=${value}|" "${file}"
-    else
-      printf '%s=%s\n' "${key}" "${value}" >>"${file}"
-    fi
+    local file
+    file="$(sysctl_persist_file)"
+    set_persistent_line "${file}" "^${key}[= ]" "${key}=${value}"
     run_cmd false sysctl -w "${key}=${value}"
     apply_change "Applied sysctl ${key}=${value}"
   fi
@@ -133,33 +135,42 @@ for service in "${OPTIONAL_DISABLE_SERVICES[@]}"; do
   ensure_service_state "${service}" "disabled"
 done
 
-if [[ "${ENABLE_AUDITD}" == "true" ]]; then
+if [[ "${ENABLE_AUDITD}" == "true" ]] && is_linux; then
   ensure_service_state "auditd" "enabled"
   ensure_service_state "auditd" "active"
 fi
 
 if [[ "${APPLY_SYSCTL_BASELINE}" == "true" ]]; then
-  apply_sysctl_control "net.ipv4.ip_forward" "0"
-  apply_sysctl_control "net.ipv4.conf.all.accept_redirects" "0"
-  apply_sysctl_control "net.ipv4.conf.all.send_redirects" "0"
-  apply_sysctl_control "net.ipv4.tcp_syncookies" "1"
+  if is_bsd; then
+    apply_sysctl_control "net.inet.ip.forwarding" "0"
+    apply_sysctl_control "net.inet.icmp.drop_redirect" "1"
+    apply_sysctl_control "net.inet.tcp.syncookies" "1"
+  else
+    apply_sysctl_control "net.ipv4.ip_forward" "0"
+    apply_sysctl_control "net.ipv4.conf.all.accept_redirects" "0"
+    apply_sysctl_control "net.ipv4.conf.all.send_redirects" "0"
+    apply_sysctl_control "net.ipv4.tcp_syncookies" "1"
+  fi
 fi
 
 if [[ "${MODE}" == "enforce" ]]; then
   if command_exists sshd; then
     run_cmd false sshd -t
   fi
-  if command_exists systemctl; then
-    run_cmd true systemctl reload sshd
+  if command_exists systemctl || command_exists service; then
+    service_manage "reload" "sshd"
   fi
 fi
 
 {
-  printf 'Linux hardening summary\n'
+  printf 'Unix hardening summary\n'
+  printf 'OS family: %s\n' "$(os_family)"
+  printf 'OS name: %s\n' "$(os_name)"
+  printf 'OS flavor: %s\n' "$(os_flavor)"
   printf 'Mode: %s\n' "${MODE}"
   printf 'Findings: %s\n' "${findings}"
   printf 'Changes: %s\n' "${changes}"
   printf 'Log: %s\n' "${LOG_FILE}"
 } >"${SUMMARY_FILE}"
 
-log "INFO" "Linux hardening ${MODE} complete. Summary at ${SUMMARY_FILE}"
+log "INFO" "Unix hardening ${MODE} complete. Summary at ${SUMMARY_FILE}"

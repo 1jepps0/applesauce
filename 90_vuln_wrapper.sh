@@ -16,7 +16,8 @@ record() {
 
 for host in "${HOSTS[@]}"; do
   if [[ "${ENABLE_NMAP}" == "true" && "${ALLOW_NETWORK_SCANNING}" == "true" ]] && command_exists nmap; then
-    nmap_output="$(nmap -Pn -sT -p "$(service_ports_for_host "${host}")" "${host}" 2>/dev/null || true)"
+    port_list="$(service_ports_for_host "${host}" | sed 's|/udp||g; s|/tcp||g')"
+    nmap_output="$(nmap -Pn -sT -p "${port_list}" "${host}" 2>/dev/null || true)"
     if grep -q 'open' <<<"${nmap_output}"; then
       record "nmap" "${host}" "info" "Open ports detected" "Review unexpected listeners against HOST_SERVICE_MATRIX"
     else

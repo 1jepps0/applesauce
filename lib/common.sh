@@ -48,6 +48,41 @@ command_exists() {
   command -v "$1" >/dev/null 2>&1
 }
 
+os_family() {
+  local uname_s
+  uname_s="$(uname -s 2>/dev/null || echo unknown)"
+  case "${uname_s}" in
+    Linux) printf 'linux\n' ;;
+    FreeBSD|OpenBSD|NetBSD|DragonFly) printf 'bsd\n' ;;
+    *) printf 'unknown\n' ;;
+  esac
+}
+
+os_name() {
+  uname -s 2>/dev/null || printf 'unknown\n'
+}
+
+os_flavor() {
+  local uname_s
+  uname_s="$(uname -s 2>/dev/null || echo unknown)"
+  case "${uname_s}" in
+    Linux) printf 'linux\n' ;;
+    FreeBSD) printf 'freebsd\n' ;;
+    OpenBSD) printf 'openbsd\n' ;;
+    NetBSD) printf 'netbsd\n' ;;
+    DragonFly) printf 'dragonfly\n' ;;
+    *) printf 'unknown\n' ;;
+  esac
+}
+
+is_bsd() {
+  [[ "$(os_family)" == "bsd" ]]
+}
+
+is_linux() {
+  [[ "$(os_family)" == "linux" ]]
+}
+
 ensure_dependencies() {
   local missing=()
   local dep
@@ -107,6 +142,17 @@ service_ports_for_host() {
   printf '%s\n' "$(IFS=, ; echo "${SCORING_PORTS[*]}")"
 }
 
+parse_service_spec() {
+  local spec="$1"
+  if [[ "${spec}" == */* ]]; then
+    SERVICE_PORT="${spec%/*}"
+    SERVICE_PROTO="${spec#*/}"
+  else
+    SERVICE_PORT="${spec}"
+    SERVICE_PROTO="tcp"
+  fi
+}
+
 service_checks_for_host() {
   local host="$1"
   local item
@@ -141,22 +187,52 @@ run_cmd() {
 
 ping_host() {
   local host="$1"
-  ping -c 1 -W 1 "${host}" >/dev/null 2>&1
+  if is_bsd; then
+    ping -c 1 "${host}" >/dev/null 2>&1
+  else
+    ping -c 1 -W 1 "${host}" >/dev/null 2>&1
+  fi
 }
 
 dns_check() {
   local name="$1"
-  getent hosts "${name}" >/dev/null 2>&1
+  if command_exists getent; then
+    getent hosts "${name}" >/dev/null 2>&1
+    return $?
+  fi
+  if command_exists host; then
+    host "${name}" >/dev/null 2>&1
+    return $?
+  fi
+  if command_exists dig; then
+    dig +short "${name}" >/dev/null 2>&1
+    return $?
+  fi
+  return 1
 }
 
 tcp_check() {
   local host="$1"
   local port="$2"
   if command_exists nc; then
-    nc -z -w 2 "${host}" "${port}" >/dev/null 2>&1
+    nc -z -w 2 "${host}" "${port}" >/dev/null 2>&1 || nc -z "${host}" "${port}" >/dev/null 2>&1
     return $?
   fi
-  timeout 3 bash -c ":</dev/tcp/${host}/${port}" >/dev/null 2>&1
+  if command_exists timeout; then
+    timeout 3 bash -c ":</dev/tcp/${host}/${port}" >/dev/null 2>&1
+  else
+    bash -c ":</dev/tcp/${host}/${port}" >/dev/null 2>&1
+  fi
+}
+
+udp_check() {
+  local host="$1"
+  local port="$2"
+  if command_exists nc; then
+    nc -u -z -w 2 "${host}" "${port}" >/dev/null 2>&1 || nc -u -z "${host}" "${port}" >/dev/null 2>&1
+    return $?
+  fi
+  return 1
 }
 
 http_check() {
@@ -195,20 +271,20 @@ http_body_contains() {
 ssh_banner_check() {
   local host="$1"
   local port="$2"
-  timeout 5 bash -c "exec 3<>/dev/tcp/${host}/${port}; head -n 1 <&3" | grep -qi '^SSH-'
+  read_tcp_banner "${host}" "${port}" 1 | grep -qi '^SSH-'
 }
 
 tcp_banner_contains() {
   local host="$1"
   local port="$2"
   local needle="$3"
-  timeout 5 bash -c "exec 3<>/dev/tcp/${host}/${port}; head -n 3 <&3" 2>/dev/null | grep -Fqi "${needle}"
+  read_tcp_banner "${host}" "${port}" 3 | grep -Fqi "${needle}"
 }
 
 smtp_banner_check() {
   local host="$1"
   local port="$2"
-  timeout 5 bash -c "exec 3<>/dev/tcp/${host}/${port}; head -n 1 <&3" | grep -qE '^(220|554)'
+  read_tcp_banner "${host}" "${port}" 1 | grep -qE '^(220|554)'
 }
 
 dns_record_contains() {
@@ -229,6 +305,10 @@ dns_service_check() {
 detect_firewall_backend() {
   if [[ "${FIREWALL_BACKEND}" != "auto" ]]; then
     printf '%s\n' "${FIREWALL_BACKEND}"
+    return 0
+  fi
+  if command_exists pfctl; then
+    printf 'pf\n'
     return 0
   fi
   if command_exists nft; then
@@ -266,6 +346,186 @@ safe_systemctl_is_active() {
 safe_systemctl_is_enabled() {
   local service="$1"
   systemctl is-enabled "${service}" >/dev/null 2>&1
+}
+
+bsd_service_is_enabled() {
+  local service="$1"
+  if command_exists rcctl; then
+    rcctl get "${service}" status 2>/dev/null | grep -qi '^on$'
+    return $?
+  fi
+  if command_exists sysrc; then
+    sysrc -n "${service}_enable" 2>/dev/null | grep -qi '^yes$'
+    return $?
+  fi
+  grep -qE "^[#[:space:]]*${service}_enable=[\"']?YES[\"']?" /etc/rc.conf /etc/rc.conf.local 2>/dev/null
+}
+
+bsd_service_is_active() {
+  local service="$1"
+  if command_exists rcctl; then
+    rcctl check "${service}" >/dev/null 2>&1
+    return $?
+  fi
+  service "${service}" onestatus >/dev/null 2>&1 || service "${service}" status >/dev/null 2>&1
+}
+
+service_is_active() {
+  local service="$1"
+  if is_linux && command_exists systemctl; then
+    safe_systemctl_is_active "${service}"
+    return $?
+  fi
+  if is_bsd && command_exists service; then
+    bsd_service_is_active "${service}"
+    return $?
+  fi
+  return 1
+}
+
+service_is_enabled() {
+  local service="$1"
+  if is_linux && command_exists systemctl; then
+    safe_systemctl_is_enabled "${service}"
+    return $?
+  fi
+  if is_bsd && command_exists service; then
+    bsd_service_is_enabled "${service}"
+    return $?
+  fi
+  return 1
+}
+
+set_bsd_service_enable() {
+  local service="$1"
+  local value="$2"
+  if command_exists rcctl; then
+    if [[ "${value}" == "YES" ]]; then
+      run_cmd false rcctl enable "${service}"
+    else
+      run_cmd true rcctl disable "${service}"
+    fi
+    return 0
+  fi
+  if command_exists sysrc; then
+    run_cmd false sysrc "${service}_enable=${value}"
+    return 0
+  fi
+  local file="/etc/rc.conf"
+  backup_file "${file}"
+  if grep -qE "^[#[:space:]]*${service}_enable=" "${file}" 2>/dev/null; then
+    sed -i '' -E "s|^[#[:space:]]*${service}_enable=.*|${service}_enable=\"${value}\"|" "${file}"
+  else
+    printf '%s_enable="%s"\n' "${service}" "${value}" >>"${file}"
+  fi
+}
+
+service_manage() {
+  local action="$1"
+  local service="$2"
+  if is_linux && command_exists systemctl; then
+    case "${action}" in
+      enable) run_cmd false systemctl enable "${service}" ;;
+      disable) run_cmd true systemctl disable "${service}" ;;
+      start) run_cmd false systemctl start "${service}" ;;
+      stop) run_cmd true systemctl stop "${service}" ;;
+      restart) run_cmd true systemctl restart "${service}" ;;
+      reload) run_cmd true systemctl reload "${service}" ;;
+    esac
+    return 0
+  fi
+  if is_bsd && command_exists rcctl; then
+    case "${action}" in
+      enable) set_bsd_service_enable "${service}" "YES" ;;
+      disable) set_bsd_service_enable "${service}" "NO" ;;
+      start|stop|restart|reload) run_cmd true rcctl "${action}" "${service}" ;;
+    esac
+    return 0
+  fi
+  if is_bsd && command_exists service; then
+    case "${action}" in
+      enable) set_bsd_service_enable "${service}" "YES" ;;
+      disable) set_bsd_service_enable "${service}" "NO" ;;
+      start|stop|restart|reload) run_cmd true service "${service}" "${action}" ;;
+    esac
+    return 0
+  fi
+  return 1
+}
+
+sysctl_persist_file() {
+  if is_linux; then
+    printf '/etc/sysctl.d/99-pcdc-baseline.conf\n'
+  elif is_bsd; then
+    printf '/etc/sysctl.conf\n'
+  else
+    printf '/etc/sysctl.conf\n'
+  fi
+}
+
+set_persistent_line() {
+  local file="$1"
+  local pattern="$2"
+  local newline="$3"
+  [[ -f "${file}" ]] && backup_file "${file}"
+  touch "${file}"
+  if is_bsd; then
+    if grep -qE "${pattern}" "${file}" 2>/dev/null; then
+      sed -i '' -E "s|${pattern}.*|${newline}|" "${file}"
+    else
+      printf '%s\n' "${newline}" >>"${file}"
+    fi
+  else
+    if grep -qE "${pattern}" "${file}" 2>/dev/null; then
+      sed -i -E "s|${pattern}.*|${newline}|" "${file}"
+    else
+      printf '%s\n' "${newline}" >>"${file}"
+    fi
+  fi
+}
+
+read_tcp_banner() {
+  local host="$1"
+  local port="$2"
+  local lines="${3:-1}"
+  if command_exists nc; then
+    if printf '' | nc -w 5 "${host}" "${port}" 2>/dev/null | head -n "${lines}" | sed '/^\s*$/d' | grep -q '.'; then
+      printf '' | nc -w 5 "${host}" "${port}" 2>/dev/null | head -n "${lines}"
+      return 0
+    fi
+    printf '' | nc "${host}" "${port}" 2>/dev/null | head -n "${lines}"
+    return 0
+  fi
+  if command_exists timeout; then
+    timeout 5 bash -c "exec 3<>/dev/tcp/${host}/${port}; head -n ${lines} <&3" 2>/dev/null
+  else
+    bash -c "exec 3<>/dev/tcp/${host}/${port}; head -n ${lines} <&3" 2>/dev/null
+  fi
+}
+
+enumerate_listeners() {
+  if command_exists ss; then
+    ss -tulpnH 2>/dev/null || true
+    return 0
+  fi
+  if command_exists sockstat; then
+    sockstat -4 -6 -l 2>/dev/null | tail -n +2 || true
+    return 0
+  fi
+  if command_exists netstat; then
+    netstat -an 2>/dev/null | grep -E 'LISTEN|udp' || true
+    return 0
+  fi
+  return 1
+}
+
+listener_port_from_line() {
+  local line="$1"
+  local port=""
+  if grep -qE ':[0-9]+' <<<"${line}"; then
+    port="$(grep -Eo '[:\.][0-9]+' <<<"${line}" | tail -n 1 | tr -d ':.' || true)"
+  fi
+  printf '%s\n' "${port}"
 }
 
 local_identity_matches() {

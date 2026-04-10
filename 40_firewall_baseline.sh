@@ -19,6 +19,9 @@ build_allow_ports() {
 
 audit_backend() {
   case "${BACKEND}" in
+    pf)
+      run_cmd false pfctl -sr
+      ;;
     nft)
       run_cmd false nft list ruleset
       ;;
@@ -29,6 +32,24 @@ audit_backend() {
       run_cmd false iptables -S
       ;;
   esac
+}
+
+enforce_pf() {
+  local rule_file="${BACKUP_DIR}/pf_baseline_${TIMESTAMP}.conf"
+  [[ -f /etc/pf.conf ]] && backup_file "/etc/pf.conf"
+  {
+    printf 'set skip on lo0\n'
+    printf 'block in all\n'
+    printf 'pass out all keep state\n'
+    printf 'pass in proto tcp from { %s } to any port %s keep state\n' "$(IFS=', '; echo "${ADMIN_SOURCE_CIDRS[*]}")" "${SSH_PORT}"
+    local spec
+    while IFS= read -r spec; do
+      parse_service_spec "${spec}"
+      printf 'pass in proto %s to any port %s keep state\n' "${SERVICE_PROTO}" "${SERVICE_PORT}"
+    done < <(build_allow_ports)
+  } >"${rule_file}"
+  run_cmd false pfctl -f "${rule_file}"
+  run_cmd true pfctl -e
 }
 
 enforce_nft() {
@@ -44,9 +65,10 @@ enforce_nft() {
     for cidr in "${ADMIN_SOURCE_CIDRS[@]}"; do
       printf '    ip saddr %s tcp dport %s accept\n' "${cidr}" "${SSH_PORT}"
     done
-    local port
-    while IFS= read -r port; do
-      printf '    tcp dport %s accept\n' "${port}"
+    local spec
+    while IFS= read -r spec; do
+      parse_service_spec "${spec}"
+      printf '    %s dport %s accept\n' "${SERVICE_PROTO}" "${SERVICE_PORT}"
     done < <(build_allow_ports)
     printf '  }\n'
     printf '}\n'
@@ -66,9 +88,10 @@ enforce_ufw() {
   for cidr in "${ADMIN_SOURCE_CIDRS[@]}"; do
     run_cmd false ufw allow from "${cidr}" to any port "${SSH_PORT}" proto tcp
   done
-  local port
-  while IFS= read -r port; do
-    run_cmd false ufw allow "${port}"/tcp
+  local spec
+  while IFS= read -r spec; do
+    parse_service_spec "${spec}"
+    run_cmd false ufw allow "${SERVICE_PORT}"/"${SERVICE_PROTO}"
   done < <(build_allow_ports)
   run_cmd false ufw --force enable
 }
@@ -88,9 +111,10 @@ enforce_iptables() {
   for cidr in "${ADMIN_SOURCE_CIDRS[@]}"; do
     run_cmd false iptables -A INPUT -p tcp -s "${cidr}" --dport "${SSH_PORT}" -j ACCEPT
   done
-  local port
-  while IFS= read -r port; do
-    run_cmd false iptables -A INPUT -p tcp --dport "${port}" -j ACCEPT
+  local spec
+  while IFS= read -r spec; do
+    parse_service_spec "${spec}"
+    run_cmd false iptables -A INPUT -p "${SERVICE_PROTO}" --dport "${SERVICE_PORT}" -j ACCEPT
   done < <(build_allow_ports)
 }
 
@@ -100,6 +124,7 @@ case "${MODE}" in
     ;;
   enforce)
     case "${BACKEND}" in
+      pf) enforce_pf ;;
       nft) enforce_nft ;;
       ufw) enforce_ufw ;;
       iptables) enforce_iptables ;;
@@ -111,6 +136,7 @@ esac
   printf 'Firewall baseline summary\n'
   printf 'Mode: %s\n' "${MODE}"
   printf 'Backend: %s\n' "${BACKEND}"
+  printf 'OS flavor: %s\n' "$(os_flavor)"
   printf 'Log: %s\n' "${LOG_FILE}"
 } >"${SUMMARY_FILE}"
 

@@ -19,7 +19,7 @@ for path in /etc/crontab /etc/cron.d /etc/cron.daily /etc/cron.hourly /etc/cron.
   record "cron_path" "${path}" "info" "Present"
 done
 
-if [[ -d /etc/systemd/system ]]; then
+if is_linux && [[ -d /etc/systemd/system ]]; then
   while IFS= read -r unit; do
     [[ -n "${unit}" ]] || continue
     record "systemd_unit" "${unit}" "info" "Custom unit file present"
@@ -30,6 +30,13 @@ for startup_dir in /etc/init.d /etc/rc.local /usr/local/bin /usr/local/sbin; do
   [[ -e "${startup_dir}" ]] || continue
   record "startup_path" "${startup_dir}" "info" "Present"
 done
+
+if is_bsd; then
+  for path in /etc/rc.conf /etc/rc.conf.local /etc/rc.d /usr/local/etc/rc.d /etc/pf.conf /etc/crontab; do
+    [[ -e "${path}" ]] || continue
+    record "bsd_startup" "${path}" "info" "Present"
+  done
+fi
 
 if command_exists find; then
   while IFS= read -r suid_file; do

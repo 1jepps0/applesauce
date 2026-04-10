@@ -20,7 +20,7 @@ if command_exists journalctl; then
   record "journalctl" "info" "failed_passwords_24h=${ssh_failures} sudo_events_24h=${sudo_events}"
 fi
 
-for file in /var/log/auth.log /var/log/secure /var/log/messages /var/log/syslog; do
+for file in /var/log/auth.log /var/log/secure /var/log/messages /var/log/syslog /var/log/maillog /var/log/security /var/log/all.log; do
   [[ -f "${file}" ]] || continue
   failed="$(grep -ciE 'failed password|authentication failure' "${file}" 2>/dev/null || true)"
   errors="$(grep -ciE 'error|denied|refused' "${file}" 2>/dev/null || true)"

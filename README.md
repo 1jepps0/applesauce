@@ -4,6 +4,10 @@ Competition-focused Bash toolkit for Linux host auditing, service validation, sa
 
 The included PCDC 2026 prep guide indicates an approximate equal mix of Windows and Unix/Linux systems, with Unix/Linux examples including multiple Linux distros and BSD, and it emphasizes service availability, business continuity, and incident reporting. It also explicitly prohibits offensive scanning activity on the competition network.
 
+This toolkit is still strongest on Linux, but it now includes BSD-aware handling for service management, `pf` firewall auditing/baselining, `pkg` package auditing, BSD persistence locations, BSD log paths, and socket enumeration via `sockstat`.
+
+Current BSD support is intended for FreeBSD and OpenBSD first. FreeBSD and DragonFly use `pkg` package auditing, while OpenBSD falls back to installed-package inventory and expects manual `syspatch` / `pkg_add -u` review.
+
 ## Design goals
 
 - One shared config file for hosts, ports, services, credentials, and exceptions
@@ -32,11 +36,13 @@ The included PCDC 2026 prep guide indicates an approximate equal mix of Windows 
 - `96_install_cron.sh`: install cron entries for recurring checks
 - `97_incident_report.sh`: generate incident report templates aligned to PCDC scoring guidance
 - `98_first_45_minutes.md`: Linux/network first-45-minute runbook
+- `99_bsd_quickref.md`: BSD-focused quick reference for FreeBSD/OpenBSD competition use
 
 ## Quick start
 
 1. Edit `00_config.sh`.
 2. Confirm host inventory, ports, admin subnets, and per-host allowed service matrix.
+   Port entries may be plain TCP ports like `443` or protocol-suffixed entries like `53/udp`.
 3. Run:
 
 ```bash
@@ -65,6 +71,8 @@ bash ./30_linux_hardening.sh audit
 - Leave `ALLOW_NETWORK_SCANNING=false` during live competition unless the action is explicitly allowed and scoped to your own systems.
 - Prefer service validation, logs, host-local audits, and incident reports over broad network scanning.
 - BSD is mentioned in the guide, but this toolkit is Linux-first. Use it for audit/reporting on BSD unless you add BSD-specific handlers.
+- For BSD hosts, update `REQUIRED_SERVICES` to BSD-native names such as `syslogd` instead of Linux-specific examples like `rsyslog`.
+- `HOST_SERVICE_MATRIX` supports protocol suffixes such as `53/udp` for DNS.
 
 ## Recommended operator flow
 

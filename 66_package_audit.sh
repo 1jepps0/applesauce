@@ -27,6 +27,14 @@ elif command_exists yum; then
 elif command_exists zypper; then
   count="$(zypper list-updates 2>/dev/null | grep -Ec '^[v| ]' || true)"
   record "zypper" "info" "Update output collected"
+elif command_exists pkg; then
+  if [[ "$(os_flavor)" == "freebsd" || "$(os_flavor)" == "dragonfly" ]]; then
+    count="$(pkg version -vIL= 2>/dev/null | wc -l | tr -d ' ')"
+    record "pkg" "info" "Outdated packages=${count}"
+  else
+    installed="$(pkg_info -a 2>/dev/null | wc -l | tr -d ' ')"
+    record "pkg" "info" "Installed packages=${installed}; use syspatch/pkg_add -u workflow for OpenBSD review"
+  fi
 else
   record "packages" "warn" "No supported package manager detected"
 fi
