@@ -1,4 +1,3 @@
-```powershell
 # ==========================================
 # ACCESS LOCKDOWN SCRIPT (PCDC SAFE)
 # Focus: Stop unauthorized access + movement
@@ -130,4 +129,3 @@ netstat -ano | findstr ":3389"
 # DONE
 # -------------------------------
 Write-Host "Access Lockdown Complete." -ForegroundColor Green
-```

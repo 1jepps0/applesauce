@@ -1,4 +1,3 @@
-```powershell
 # ==========================================
 # ADVANCED AD HARDENING SCRIPT (PCDC SAFE)
 ==========================================
@@ -182,4 +181,3 @@ cmdkey /list
 # 20. Final Status
 # -------------------------------
 Write-Host "Advanced AD Hardening Complete." -ForegroundColor Green
-```
