@@ -3,6 +3,10 @@
 # Installs a cron entry that runs one toolkit script on a recurring schedule and
 # appends output to a dedicated cron log.
 #
+# Flags:
+#   --schedule CRON_EXPR   Cron schedule to install, for example "*/5 * * * *".
+#   --script PATH          Toolkit script to run from cron.
+#
 # Usage:
 #   ./96_install_cron.sh --schedule "*/5 * * * *" --script ./20_service_audit.sh
 

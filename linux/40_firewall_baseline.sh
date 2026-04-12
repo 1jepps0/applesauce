@@ -3,9 +3,17 @@
 # Audits or enforces a minimal host firewall baseline for the detected backend,
 # preserving admin SSH access and the mapped service ports for the host.
 #
+# Flags:
+#   --remote    Run the selected mode across the hosts in HOSTS over SSH.
+#
+# Modes:
+#   audit       Show the current firewall state for the detected backend.
+#   enforce     Apply the baseline rules for the detected backend.
+#   verify      Re-check the resulting ruleset after audit or enforce.
+#
 # Usage:
 #   ./40_firewall_baseline.sh [audit|enforce|verify]
-#   ./40_firewall_baseline.sh [audit|enforce|verify] --remote
+#   ./40_firewall_baseline.sh [audit|enforce|verify] [--remote]
 
 SCRIPT_BASENAME="$(basename "$0" .sh)"
 # shellcheck source=lib/common.sh

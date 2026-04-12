@@ -3,6 +3,9 @@
 # Runs protocol-aware service checks against configured hosts and records both
 # per-check results and a readable per-host summary.
 #
+# Flags:
+#   None.
+#
 # Usage:
 #   ./20_service_audit.sh
 

@@ -3,9 +3,12 @@
 # Reports pending package updates using the host's native package manager to
 # highlight obvious patch backlog without changing the system.
 #
+# Flags:
+#   --remote    Run the audit across the hosts in HOSTS over SSH.
+#
 # Usage:
 #   ./66_package_audit.sh
-#   ./66_package_audit.sh --remote
+#   ./66_package_audit.sh [--remote]
 
 SCRIPT_BASENAME="$(basename "$0" .sh)"
 # shellcheck source=lib/common.sh

@@ -3,6 +3,9 @@
 # Shared toolkit configuration for host inventory, service policy, SSH access,
 # credential rotation settings, and feature toggles.
 #
+# Flags:
+#   None. This file is edited directly instead of invoked with CLI flags.
+#
 # Usage:
 #   Edit this file before running the toolkit.
 

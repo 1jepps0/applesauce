@@ -3,6 +3,9 @@
 # Checks configured hosts for ICMP reachability, name resolution, and expected
 # TCP/UDP port reachability from the jumpbox.
 #
+# Flags:
+#   None.
+#
 # Usage:
 #   ./10_host_discovery.sh
 

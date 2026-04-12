@@ -3,6 +3,14 @@
 # Verifies or rotates explicitly listed admin account passwords using a supplied
 # password source, with conservative safeguards around secret handling.
 #
+# Flags:
+#   None.
+#
+# Modes:
+#   audit       Confirm the listed accounts exist and are eligible for rotation.
+#   enforce     Rotate passwords using PASSWORD_FILE.
+#   verify      Re-check the listed accounts after audit or enforce.
+#
 # Usage:
 #   ./70_credential_rotation.sh [audit|enforce|verify]
 

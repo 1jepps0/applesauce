@@ -3,6 +3,9 @@
 # Shared helper library for config loading, logging, CSV/report helpers,
 # host-policy resolution, and SSH/staging wrappers.
 #
+# Flags:
+#   None. This file is sourced by toolkit scripts instead of executed directly.
+#
 # Usage:
 #   Source from toolkit scripts: source ./lib/common.sh
 

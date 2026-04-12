@@ -3,6 +3,15 @@
 # Creates a markdown incident report template populated with basic attack and
 # host details for competition reporting.
 #
+# Flags:
+#   None.
+#
+# Positional arguments:
+#   <src_ip>      Source IP or source identifier for the incident.
+#   <host>        Compromised host name or IP.
+#   "<time>"      Attack or detection time. Defaults to the current timestamp.
+#   "summary"     Short incident summary. Defaults to a generic description.
+#
 # Usage:
 #   ./97_incident_report.sh <src_ip> <host> "<time>" "summary"
 

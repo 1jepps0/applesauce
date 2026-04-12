@@ -3,6 +3,14 @@
 # Copies the toolkit to remote hosts and runs selected remote commands using the
 # configured SSH authentication settings.
 #
+# Flags:
+#   None.
+#
+# Actions:
+#   push            Copy the toolkit to each reachable host.
+#   audit           Run a remote listener snapshot on each reachable host.
+#   service-audit   Run ./20_service_audit.sh from the remote toolkit path.
+#
 # Usage:
 #   ./80_ssh_deploy.sh [push|audit|service-audit]
 

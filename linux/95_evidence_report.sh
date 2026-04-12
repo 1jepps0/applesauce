@@ -3,6 +3,9 @@
 # Bundles the latest reports and incident notes into a single evidence
 # directory for quick handoff and scoring support.
 #
+# Flags:
+#   None.
+#
 # Usage:
 #   ./95_evidence_report.sh
 

@@ -3,9 +3,12 @@
 # Summarizes recent authentication and system-log indicators from journalctl
 # and common log files for quick triage.
 #
+# Flags:
+#   --remote    Run the audit across the hosts in HOSTS over SSH.
+#
 # Usage:
 #   ./68_log_triage.sh
-#   ./68_log_triage.sh --remote
+#   ./68_log_triage.sh [--remote]
 
 SCRIPT_BASENAME="$(basename "$0" .sh)"
 # shellcheck source=lib/common.sh

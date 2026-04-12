@@ -3,9 +3,17 @@
 # Audits or enforces a conservative host-hardening baseline locally or over SSH,
 # covering SSH settings, service state, and key sysctl values.
 #
+# Flags:
+#   --remote    Run the selected mode across the hosts in HOSTS over SSH.
+#
+# Modes:
+#   audit       Report findings without changing the host.
+#   enforce     Apply the configured hardening changes.
+#   verify      Re-check the baseline after audit or enforce.
+#
 # Usage:
 #   ./30_linux_hardening.sh [audit|enforce|verify]
-#   ./30_linux_hardening.sh [audit|enforce|verify] --remote
+#   ./30_linux_hardening.sh [audit|enforce|verify] [--remote]
 
 SCRIPT_BASENAME="$(basename "$0" .sh)"
 # shellcheck source=lib/common.sh

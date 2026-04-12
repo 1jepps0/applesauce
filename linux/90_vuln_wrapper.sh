@@ -3,6 +3,9 @@
 # Runs policy-limited exposure checks such as scoped nmap, Lynis, and simple
 # filesystem findings without acting as a broad scanner by default.
 #
+# Flags:
+#   None.
+#
 # Usage:
 #   ./90_vuln_wrapper.sh
 

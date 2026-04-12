@@ -3,9 +3,17 @@
 # Audits or enforces host firewall allow-rules derived from the configured
 # per-host service matrix, locally or over SSH.
 #
+# Flags:
+#   --remote    Run the selected mode across the hosts in HOSTS over SSH.
+#
+# Modes:
+#   audit       Show the configured per-host allow policy without changing rules.
+#   enforce     Apply allow-rules for the mapped local host policy.
+#   verify      Re-check allow-rules after audit or enforce.
+#
 # Usage:
 #   ./50_service_allow_rules.sh [audit|enforce|verify]
-#   ./50_service_allow_rules.sh [audit|enforce|verify] --remote
+#   ./50_service_allow_rules.sh [audit|enforce|verify] [--remote]
 
 SCRIPT_BASENAME="$(basename "$0" .sh)"
 # shellcheck source=lib/common.sh
