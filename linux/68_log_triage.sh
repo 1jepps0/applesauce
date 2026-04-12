@@ -1,7 +1,19 @@
 #!/usr/bin/env bash
 
+# SUBJECT: Resource Approval Request
+# BODY:
+# Team #: TBD
+# Resource Name: 68_log_triage.sh
+# Citation: /home/jacob/code/applesauce/linux/68_log_triage.sh
+# How Resource Will Be Used: Summarize recent authentication and system-log indicators for quick triage.
+#
 # Summarizes recent authentication and system-log indicators from journalctl
 # and common log files for quick triage.
+#
+# Sources:
+#   https://www.man7.org/linux/man-pages/man1/journalctl.1.html
+#   https://man7.org/linux/man-pages/man1/grep.1.html
+#   https://www.freedesktop.org/software/systemd/man/latest/systemd.journal-fields.html
 #
 # Flags:
 #   --remote    Run the audit across the hosts in HOSTS over SSH.

@@ -1,7 +1,19 @@
 #!/usr/bin/env bash
 
+# SUBJECT: Resource Approval Request
+# BODY:
+# Team #: TBD
+# Resource Name: 67_process_port_audit.sh
+# Citation: /home/jacob/code/applesauce/linux/67_process_port_audit.sh
+# How Resource Will Be Used: Compare listening ports against expected service policy and flag unexpected listeners.
+#
 # Compares local listening ports against the mapped service policy for the host
 # and flags unexpected listeners.
+#
+# Sources:
+#   https://man7.org/linux/man-pages/man8/ss.8.html
+#   https://man.freebsd.org/cgi/man.cgi?query=sockstat
+#   https://man7.org/linux/man-pages/man8/netstat.8.html
 #
 # Flags:
 #   --remote    Run the audit across the hosts in HOSTS over SSH.

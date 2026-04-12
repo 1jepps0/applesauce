@@ -1,7 +1,19 @@
 #!/usr/bin/env bash
 
+# SUBJECT: Resource Approval Request
+# BODY:
+# Team #: TBD
+# Resource Name: 70_credential_rotation.sh
+# Citation: /home/jacob/code/applesauce/linux/70_credential_rotation.sh
+# How Resource Will Be Used: Audit, verify, or rotate explicitly listed admin account credentials.
+#
 # Verifies or rotates explicitly listed admin account passwords using a supplied
 # password source, with conservative safeguards around secret handling.
+#
+# Sources:
+#   https://man.archlinux.org/man/chpasswd.8.en
+#   https://man.freebsd.org/cgi/man.cgi?query=pw
+#   https://man.archlinux.org/man/passwd.1.en
 #
 # Flags:
 #   None.

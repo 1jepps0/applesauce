@@ -1,7 +1,19 @@
 #!/usr/bin/env bash
 
+# SUBJECT: Resource Approval Request
+# BODY:
+# Team #: TBD
+# Resource Name: 80_ssh_deploy.sh
+# Citation: /home/jacob/code/applesauce/linux/80_ssh_deploy.sh
+# How Resource Will Be Used: Copy the toolkit to remote hosts and run selected commands over SSH.
+#
 # Copies the toolkit to remote hosts and runs selected remote commands using the
 # configured SSH authentication settings.
+#
+# Sources:
+#   https://man.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man1/ssh.1
+#   https://www.openbsd.org/openssh/manual.html
+#   https://man.openbsd.org/ssh_config
 #
 # Flags:
 #   None.

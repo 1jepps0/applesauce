@@ -1,7 +1,19 @@
 #!/usr/bin/env bash
 
+# SUBJECT: Resource Approval Request
+# BODY:
+# Team #: TBD
+# Resource Name: 20_service_audit.sh
+# Citation: /home/jacob/code/applesauce/linux/20_service_audit.sh
+# How Resource Will Be Used: Run protocol-aware service validation against configured hosts and record the results.
+#
 # Runs protocol-aware service checks against configured hosts and records both
 # per-check results and a readable per-host summary.
+#
+# Sources:
+#   https://curl.se/docs/manpage.html
+#   https://bind9.readthedocs.io/en/v9.21.12/manpages.html
+#   https://man7.org/linux/man-pages/man1/nc.1.html
 #
 # Flags:
 #   None.

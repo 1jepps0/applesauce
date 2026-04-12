@@ -1,7 +1,19 @@
 #!/usr/bin/env bash
 
+# SUBJECT: Resource Approval Request
+# BODY:
+# Team #: TBD
+# Resource Name: 97_incident_report.sh
+# Citation: /home/jacob/code/applesauce/linux/97_incident_report.sh
+# How Resource Will Be Used: Create a structured incident report template for competition reporting.
+#
 # Creates a markdown incident report template populated with basic attack and
 # host details for competition reporting.
+#
+# Sources:
+#   https://csrc.nist.gov/pubs/sp/800/61/r3/final
+#   https://www.cisa.gov/ncas/current-activity/2021/11/16/new-federal-government-cybersecurity-incident-and-vulnerability
+#   https://www.nist.gov/publications/computer-security-log-management
 #
 # Flags:
 #   None.

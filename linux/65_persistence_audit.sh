@@ -1,7 +1,19 @@
 #!/usr/bin/env bash
 
+# SUBJECT: Resource Approval Request
+# BODY:
+# Team #: TBD
+# Resource Name: 65_persistence_audit.sh
+# Citation: /home/jacob/code/applesauce/linux/65_persistence_audit.sh
+# How Resource Will Be Used: Survey common persistence locations and suspicious startup mechanisms on local or remote hosts.
+#
 # Surveys common persistence locations including cron paths, systemd units,
 # startup directories, BSD startup files, and SUID/SGID files.
+#
+# Sources:
+#   https://www.freedesktop.org/software/systemd/man/latest/systemd.unit.html
+#   https://man7.org/linux/man-pages/man5/crontab.5.html
+#   https://man7.org/linux/man-pages/man1/find.1.html
 #
 # Flags:
 #   --remote    Run the audit across the hosts in HOSTS over SSH.

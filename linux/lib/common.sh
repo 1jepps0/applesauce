@@ -1,7 +1,19 @@
 #!/usr/bin/env bash
 
+# SUBJECT: Resource Approval Request
+# BODY:
+# Team #: TBD
+# Resource Name: lib/common.sh
+# Citation: /home/jacob/code/applesauce/linux/lib/common.sh
+# How Resource Will Be Used: Provide shared logging, SSH, parsing, and helper functions used by the toolkit scripts.
+#
 # Shared helper library for config loading, logging, CSV/report helpers,
 # host-policy resolution, and SSH/staging wrappers.
+#
+# Sources:
+#   https://man.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man1/ssh.1
+#   https://www.openbsd.org/openssh/manual.html
+#   https://curl.se/docs/manpage.html
 #
 # Flags:
 #   None. This file is sourced by toolkit scripts instead of executed directly.

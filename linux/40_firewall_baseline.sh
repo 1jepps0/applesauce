@@ -1,7 +1,19 @@
 #!/usr/bin/env bash
 
+# SUBJECT: Resource Approval Request
+# BODY:
+# Team #: TBD
+# Resource Name: 40_firewall_baseline.sh
+# Citation: /home/jacob/code/applesauce/linux/40_firewall_baseline.sh
+# How Resource Will Be Used: Audit, enforce, or verify a minimal firewall baseline for the detected backend.
+#
 # Audits or enforces a minimal host firewall baseline for the detected backend,
 # preserving admin SSH access and the mapped service ports for the host.
+#
+# Sources:
+#   https://wiki.nftables.org/wiki-nftables/index.php/Quick_reference-nftables_in_10_minutes
+#   https://www.openbsd.org/faq/pf/
+#   https://documentation.ubuntu.com/security/security-features/network/firewall/
 #
 # Flags:
 #   --remote    Run the selected mode across the hosts in HOSTS over SSH.

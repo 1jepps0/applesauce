@@ -1,7 +1,19 @@
 #!/usr/bin/env bash
 
+# SUBJECT: Resource Approval Request
+# BODY:
+# Team #: TBD
+# Resource Name: 95_evidence_report.sh
+# Citation: /home/jacob/code/applesauce/linux/95_evidence_report.sh
+# How Resource Will Be Used: Bundle the latest reports and incident notes into a single evidence directory.
+#
 # Bundles the latest reports and incident notes into a single evidence
 # directory for quick handoff and scoring support.
+#
+# Sources:
+#   https://csrc.nist.gov/pubs/sp/800/61/r3/final
+#   https://www.cisa.gov/ncas/current-activity/2021/11/16/new-federal-government-cybersecurity-incident-and-vulnerability
+#   https://man7.org/linux/man-pages/man1/cp.1.html
 #
 # Flags:
 #   None.

@@ -1,7 +1,19 @@
 #!/usr/bin/env bash
 
+# SUBJECT: Resource Approval Request
+# BODY:
+# Team #: TBD
+# Resource Name: 30_linux_hardening.sh
+# Citation: /home/jacob/code/applesauce/linux/30_linux_hardening.sh
+# How Resource Will Be Used: Audit, enforce, or verify conservative host-hardening settings locally or over SSH.
+#
 # Audits or enforces a conservative host-hardening baseline locally or over SSH,
 # covering SSH settings, service state, and key sysctl values.
+#
+# Sources:
+#   https://man.openbsd.org/sshd_config
+#   https://www.freedesktop.org/software/systemd/man/254/systemctl.html
+#   https://man7.org/linux/man-pages/man8/sysctl.8.html
 #
 # Flags:
 #   --remote    Run the selected mode across the hosts in HOSTS over SSH.

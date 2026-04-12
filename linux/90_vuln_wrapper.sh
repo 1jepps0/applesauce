@@ -1,7 +1,19 @@
 #!/usr/bin/env bash
 
+# SUBJECT: Resource Approval Request
+# BODY:
+# Team #: TBD
+# Resource Name: 90_vuln_wrapper.sh
+# Citation: /home/jacob/code/applesauce/linux/90_vuln_wrapper.sh
+# How Resource Will Be Used: Run policy-limited exposure checks and local hardening triage helpers.
+#
 # Runs policy-limited exposure checks such as scoped nmap, Lynis, and simple
 # filesystem findings without acting as a broad scanner by default.
+#
+# Sources:
+#   https://nmap.org/book/man.html
+#   https://cisofy.com/documentation/lynis/
+#   https://man7.org/linux/man-pages/man1/find.1.html
 #
 # Flags:
 #   None.

@@ -1,0 +1,25 @@
+Using scripts:
+SUBJECT: Resource Approval Request
+BODY:
+Team #: ___________
+Resource Name: ___________
+Citation: ___________
+How Resource Will Be Used: ___________
+
+
+INCIDENT REPORT:
+Time(s) of Incident: ___________
+Asset(s) Affected: ___________
+Source (IP Address) of Attack: ___________
+Description of Attack/Incident: ___________
+Remediation/Plan to Resolve: ___________
+
+
+VM reset:
+RECOVERY REQUEST
+Request: ___________
+Justification: ___________
+
+
+File Names:
+<teamNumber>_<injectNumber>_<injectTitle>

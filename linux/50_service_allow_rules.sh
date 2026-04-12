@@ -1,7 +1,19 @@
 #!/usr/bin/env bash
 
+# SUBJECT: Resource Approval Request
+# BODY:
+# Team #: TBD
+# Resource Name: 50_service_allow_rules.sh
+# Citation: /home/jacob/code/applesauce/linux/50_service_allow_rules.sh
+# How Resource Will Be Used: Audit, enforce, or verify service-specific firewall allow-rules derived from host policy.
+#
 # Audits or enforces host firewall allow-rules derived from the configured
 # per-host service matrix, locally or over SSH.
+#
+# Sources:
+#   https://wiki.nftables.org/wiki-nftables/index.php/Quick_reference-nftables_in_10_minutes
+#   https://www.openbsd.org/faq/pf/
+#   https://documentation.ubuntu.com/security/security-features/network/firewall/
 #
 # Flags:
 #   --remote    Run the selected mode across the hosts in HOSTS over SSH.

@@ -1,7 +1,19 @@
 #!/usr/bin/env bash
 
+# SUBJECT: Resource Approval Request
+# BODY:
+# Team #: TBD
+# Resource Name: 10_host_discovery.sh
+# Citation: /home/jacob/code/applesauce/linux/10_host_discovery.sh
+# How Resource Will Be Used: Check configured hosts for ICMP reachability, DNS resolution, and expected port access.
+#
 # Checks configured hosts for ICMP reachability, name resolution, and expected
 # TCP/UDP port reachability from the jumpbox.
+#
+# Sources:
+#   https://man7.org/linux/man-pages/man8/ping.8.html
+#   https://bind9.readthedocs.io/en/v9.21.12/manpages.html
+#   https://man7.org/linux/man-pages/man1/nc.1.html
 #
 # Flags:
 #   None.

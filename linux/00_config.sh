@@ -1,7 +1,19 @@
 #!/usr/bin/env bash
 
+# SUBJECT: Resource Approval Request
+# BODY:
+# Team #: TBD
+# Resource Name: 00_config.sh
+# Citation: /home/jacob/code/applesauce/linux/00_config.sh
+# How Resource Will Be Used: Store shared toolkit configuration for hosts, services, SSH access, and policy defaults.
+#
 # Shared toolkit configuration for host inventory, service policy, SSH access,
 # credential rotation settings, and feature toggles.
+#
+# Sources:
+#   https://www.openbsd.org/openssh/manual.html
+#   https://www.freedesktop.org/software/systemd/man/latest/systemd.unit.html
+#   https://www.openbsd.org/faq/pf/
 #
 # Flags:
 #   None. This file is edited directly instead of invoked with CLI flags.

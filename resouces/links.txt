@@ -1,0 +1,12 @@
+Passbolt link: http://192.168.40.111
+Gold Team Email Server: http://192.168.40.13
+In-Scope Email: https://mail.blueXX.pcdc.local 
+
+
+to log into Passbolt, first ensure you have access to your Gold Team Email Account. This is an
+OOB (Out Of Band) email server. Log in with the provided credentials.
+Username: blueXX@pcdc.local
+Password: [provided in blue folder]
+Your GPG Key may be required to log in. This will be emailed to you.
+
+

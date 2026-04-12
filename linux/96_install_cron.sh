@@ -1,7 +1,19 @@
 #!/usr/bin/env bash
 
+# SUBJECT: Resource Approval Request
+# BODY:
+# Team #: TBD
+# Resource Name: 96_install_cron.sh
+# Citation: /home/jacob/code/applesauce/linux/96_install_cron.sh
+# How Resource Will Be Used: Install a cron entry that runs a selected toolkit script on a schedule.
+#
 # Installs a cron entry that runs one toolkit script on a recurring schedule and
 # appends output to a dedicated cron log.
+#
+# Sources:
+#   https://man7.org/linux/man-pages/man1/crontab.1.html
+#   https://man7.org/linux/man-pages/man5/crontab.5.html
+#   https://man7.org/linux/man-pages/man1/mktemp.1.html
 #
 # Flags:
 #   --schedule CRON_EXPR   Cron schedule to install, for example "*/5 * * * *".

@@ -1,7 +1,19 @@
 #!/usr/bin/env bash
 
+# SUBJECT: Resource Approval Request
+# BODY:
+# Team #: TBD
+# Resource Name: 60_account_audit.sh
+# Citation: /home/jacob/code/applesauce/linux/60_account_audit.sh
+# How Resource Will Be Used: Review account, sudo, SSH key, cron, and listener risks on local or remote hosts.
+#
 # Reviews local account risk indicators such as unexpected admins, SSH keys,
 # sudoers, cron usage, and listening sockets.
+#
+# Sources:
+#   https://man7.org/linux/man-pages/man5/sudoers.5.html
+#   https://man7.org/linux/man-pages/man1/crontab.1.html
+#   https://man7.org/linux/man-pages/man8/ss.8.html
 #
 # Flags:
 #   --remote    Run the audit across the hosts in HOSTS over SSH.

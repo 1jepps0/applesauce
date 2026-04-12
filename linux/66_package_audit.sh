@@ -1,7 +1,19 @@
 #!/usr/bin/env bash
 
+# SUBJECT: Resource Approval Request
+# BODY:
+# Team #: TBD
+# Resource Name: 66_package_audit.sh
+# Citation: /home/jacob/code/applesauce/linux/66_package_audit.sh
+# How Resource Will Be Used: Check for pending package updates using the host's native package manager.
+#
 # Reports pending package updates using the host's native package manager to
 # highlight obvious patch backlog without changing the system.
+#
+# Sources:
+#   https://manpages.ubuntu.com/manpages/noble/en/man8/apt.8.html
+#   https://dnf.readthedocs.io/en/latest/command_ref.html
+#   https://man.freebsd.org/cgi/man.cgi?query=pkg
 #
 # Flags:
 #   --remote    Run the audit across the hosts in HOSTS over SSH.
