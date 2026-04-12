@@ -1,0 +1,1073 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../../../">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta content="Configure Ubuntu Server firewalls using ufw (Uncomplicated Firewall) to manage iptables rules and control network traffic." name="description" />
+<meta property="og:title" content="Firewall" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://ubuntu.com/server/docs/how-to/security/firewalls/" />
+<meta property="og:site_name" content="Ubuntu Server" />
+<meta property="og:description" content="The Linux kernel includes the netfilter subsystem, which is used to manipulate or decide the fate of network traffic headed into or through your server. All modern Linux firewall solutions use this..." />
+<meta property="og:image" content="https://assets.ubuntu.com/v1/cc828679-docs_illustration.svg" />
+<meta property="og:image:alt" content="Ubuntu Server" />
+
+    <meta property="article:modified_time" content="2025-12-11T15:26:05+00:00" /><link rel="index" title="Index" href="../../../genindex/"><link rel="search" title="Search" href="../../../search/"><link rel="next" title="AppArmor" href="../apparmor/"><link rel="prev" title="User management" href="../user-management/">
+        <link rel="canonical" href="https://ubuntu.com/server/docs/how-to/security/firewalls/">
+
+    <link rel="shortcut icon" href="../../../_static/favicon.png"><!-- Generated with Sphinx 7.4.7 and Furo 2025.12.19 -->
+   
+        <title>Firewall - Ubuntu Server documentation</title>
+      
+   
+   
+   <meta name="github-url" content="https://github.com/canonical/ubuntu-server-documentation/">
+   
+<link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/config-options.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/contributors.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/related-links.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/tooltipster.custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/tooltipster.bundle.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/tooltipster-sideTip-shadow.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/tooltipster-sideTip-punk.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/tooltipster-sideTip-noir.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/tooltipster-sideTip-light.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/tooltipster-sideTip-borderless.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=8dab3a3b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/cookie-banner.css?v=b74831ab" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=912f9c79" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/footer.css?v=bd05fc90" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/furo_colors.css?v=b6ad0433" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/github_issue_links.css?v=af88fb93" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/header.css?v=84f70f09" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=09c36f8d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/header.css?v=a8078839" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/github_issue_links.css?v=3d761185" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/furo_colors.css?v=4cd1adcf" />
+    
+<script async type="text/javascript" src="/_/static/javascript/readthedocs-addons.js"></script><meta name="readthedocs-project-slug" content="canonical-ubuntu-server-documentation" /><meta name="readthedocs-version-slug" content="latest" /><meta name="readthedocs-resolver-filename" content="/how-to/security/firewalls/" /><meta name="readthedocs-http-status" content="200" /></head>
+  <body>
+    <header id="header" class="p-navigation">
+
+  <!-- Google Tag Manager -->
+  <script>
+    (function(w, d, s, l, i) {
+      w[l] = w[l] || [];
+      w[l].push({
+        'gtm.start': new Date().getTime(),
+        event: 'gtm.js'
+      });
+      var f = d.getElementsByTagName(s)[0];
+      var j = d.createElement(s);
+      var dl = '';
+      if (l != 'dataLayer') {
+          dl = '&l=' + l;
+      }
+      j.async = true;
+      j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+      f.parentNode.insertBefore(j, f);
+    })(window, document, 'script', 'dataLayer', 'GTM-KNX3CJC');
+  </script>
+
+  <div class="p-navigation__nav" role="menubar">
+
+    <ul class="p-navigation__links" role="menu">
+
+      <li>
+        
+        <a class="p-logo" href="https://ubuntu.com/server" aria-current="page">
+          <img src="../../../_static/tag.png" alt="Logo" class="p-logo-image">
+          <div class="p-logo-text p-heading--4">Ubuntu Server
+          </div>
+        </a>
+        
+      </li>
+
+      <li class="nav-ubuntu-com">
+        
+        <a href="https://ubuntu.com/server" class="p-navigation__link">ubuntu.com/server</a>
+        
+      </li>
+
+      <li class="nav-dropdown">
+        <a href="#" class="p-navigation__link nav-more-links"
+           id="more-resources-toggle"
+           aria-haspopup="true"
+           aria-expanded="false">
+          Ubuntu documentation
+        </a>
+        <ul class="more-links-dropdown" aria-labelledby="more-resources-toggle">
+          
+          <li>
+            <a href="https://documentation.ubuntu.com/release-notes/" class="p-navigation__sub-link p-dropdown__link">Ubuntu release notes</a>
+          </li>
+          
+          <li>
+            <a href="https://documentation.ubuntu.com/security/" class="p-navigation__sub-link p-dropdown__link">Ubuntu security</a>
+          </li>
+          
+          <li>
+            <a href="https://documentation.ubuntu.com/desktop/" class="p-navigation__sub-link p-dropdown__link">Ubuntu Desktop</a>
+          </li>
+          
+          <li>
+            <a href="https://documentation.ubuntu.com/wsl/latest/" class="p-navigation__sub-link p-dropdown__link">Ubuntu on WSL</a>
+          </li>
+          
+          <li>
+            <a href="https://documentation.ubuntu.com/ubuntu-for-developers/" class="p-navigation__sub-link p-dropdown__link">Ubuntu for developers</a>
+          </li>
+          
+          <li>
+            <a href="https://documentation.ubuntu.com/project/" class="p-navigation__sub-link p-dropdown__link">Ubuntu project</a>
+          </li>
+          
+          <li>
+            <a href="https://documentation.ubuntu.com/pro/" class="p-navigation__sub-link p-dropdown__link">Ubuntu Pro</a>
+          </li>
+          
+        </ul>
+      </li>
+
+    </ul>
+  </div>
+</header>
+   
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../../"><div class="brand">Ubuntu Server documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../">
+  
+  <span class="sidebar-brand-text">Ubuntu Server documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../../search/" role="search">
+    <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+    <input type="submit" value="Go">
+    <input type="hidden" name="check_keywords" value="yes">
+    <input type="hidden" name="area" value="default">
+  </form>
+  <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../tutorial/">Tutorial</a><input aria-label="Toggle navigation of Tutorial" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/basic-installation/">Basic installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/managing-software/">Managing your software</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/attach-your-ubuntu-pro-subscription/">Attach your Ubuntu Pro subscription</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../../">How-to guides</a><input aria-label="Toggle navigation of How-to guides" checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../installation/">Server installation</a><input aria-label="Toggle navigation of Server installation" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../installation/how-to-netboot-the-server-installer-on-amd64/">amd64 netboot install</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../installation/netboot-the-server-installer-via-uefi-pxe-on-arm-aarch64-arm64-and-x86-64-amd64/">arm64 netboot install</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../installation/choosing-between-the-arm64-and-arm64-largemem-installer-options/">Choose between the arm64 and arm64+largemem installer options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../installation/netboot-the-live-server-installer-on-ibm-power-ppc64el-with-petitboot/">ppc64el netboot install</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../installation/how-to-start-a-live-server-installation-on-ibm-power-ppc64el-with-a-virtual-cd-rom-and-petitboot/">Virtual CD-ROM and Petitboot install on ppc64el</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../installation/interactive-live-server-installation-on-ibm-z-vm-s390x/">s390x install via z/VM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../installation/non-interactive-ibm-z-vm-autoinstall-s390x/">Non-interactive IBM z/VM autoinstall (s390x)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../installation/interactive-live-server-installation-on-ibm-z-lpar-s390x/">s390x install via LPAR</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../installation/non-interactive-ibm-z-lpar-autoinstall-s390x/">Non-interactive IBM Z LPAR autoinstall (s390x)</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current has-children"><a class="reference internal" href="../">Security</a><input aria-label="Toggle navigation of Security" checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../user-management/">User management</a></li>
+<li class="toctree-l3 current current-page"><a class="current reference internal" href="#">Firewalls</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../apparmor/">AppArmor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../console-security/">Console security</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../tpm-backed-luks-decryption-with-clevis/">TPM-backed LUKS decryption with Clevis</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../kerberos/">Kerberos</a><input aria-label="Toggle navigation of Kerberos" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../kerberos/install-a-kerberos-server/">Install a Kerberos server</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../kerberos/configure-service-principals/">Configure service principals</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../kerberos/kerberos-encryption-types/">Kerberos encryption types</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../kerberos/set-up-secondary-kdc/">Set up secondary KDC</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../kerberos/basic-workstation-authentication/">Basic workstation authentication</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../kerberos/kerberos-with-openldap-backend/">Kerberos with OpenLDAP backend</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../sssd/">Network user authentication with SSSD</a><input aria-label="Toggle navigation of Network user authentication with SSSD" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../sssd/with-active-directory/">SSSD with Active Directory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../sssd/with-ldap/">SSSD with LDAP</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../sssd/with-ldap-and-kerberos/">SSSD with LDAP and Kerberos</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../sssd/troubleshooting/">Troubleshooting SSSD</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../smart-card-authentication/">Smart cards</a><input aria-label="Toggle navigation of Smart cards" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../smart-card-authentication/">Smart card authentication</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../smart-card-authentication-with-ssh/">Smart card authentication with SSH</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../openssh-server/">OpenSSH</a><input aria-label="Toggle navigation of OpenSSH" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../two-factor-authentication-with-totp-or-hotp/">2FA with TOTP/HOTP</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../two-factor-authentication-with-u2f-or-fido/">2FA with U2F/FIDO</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../install-a-root-ca-certificate-in-the-trust-store/">Install a root CA certificate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../install-openvpn/">OpenVPN</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../wireguard-vpn/">WireGuard VPN</a><input aria-label="Toggle navigation of WireGuard VPN" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../wireguard-vpn/peer-to-site/">Peer-to-site</a><input aria-label="Toggle navigation of Peer-to-site" class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../wireguard-vpn/peer-to-site-on-router/">Peer-to-site (on router)</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../wireguard-vpn/on-an-internal-system/">Peer-to-site (inside device)</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../wireguard-vpn/site-to-site/">Site-to-site</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../wireguard-vpn/vpn-as-the-default-gateway/">Default gateway</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../wireguard-vpn/common-tasks/">Common tasks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../wireguard-vpn/security-tips/">Security tips</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../wireguard-vpn/troubleshooting/">Troubleshooting</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../networking/">Networking</a><input aria-label="Toggle navigation of Networking" class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../networking/ftp/">File transfers with FTP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../networking/install-dns/">Set up a name server (DNS)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../networking/install-dnssec/">Set up DNS Security Extensions (DNSSEC)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../networking/dnssec-troubleshooting/">DNSSEC Troubleshooting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../networking/dpdk-with-open-vswitch/">Use Open vSwitch with DPDK</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../networking/install-isc-kea/">Install DHCP isc-kea</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../networking/install-isc-dhcp-server/">Install DHCP isc-dhcp-server</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../networking/chrony-client/">Time sync with chrony</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../networking/timedatectl-and-timesyncd/">Time sync with timedatectl and timesyncd</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../networking/serve-ntp-with-chrony/">Serving time with chrony</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../networking/install-nfs/">Network File System (NFS) sharing</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../samba/">Samba</a><input aria-label="Toggle navigation of Samba" class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../samba/provision-samba-ad-controller/">Set up a Samba AD Domain Controller</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../samba/member-server-in-an-ad-domain/">Join an Active Directory domain</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../samba/file-server/">Set up a file server</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../samba/print-server/">Set up a print server</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../samba/share-access-controls/">Share access controls</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../samba/apparmor-profile/">Create AppArmor profile</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../samba/mount-cifs-shares-permanently/">Mount CIFS shares permanently</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../samba/nt4-domain-controller-legacy/">NT4 domain controller</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../samba/openldap-backend-legacy/">OpenLDAP backend</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../active-directory/">Active Directory integration</a><input aria-label="Toggle navigation of Active Directory integration" class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../active-directory/join-a-domain-with-winbind-preparation/">Prepare to join a domain</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../active-directory/join-a-simple-domain-with-the-rid-backend/">Join a simple domain with the rid backend</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../active-directory/join-a-forest-with-the-rid-backend/">Join a forest with the rid backend</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../active-directory/join-a-forest-with-the-autorid-backend/">Join a forest with the autorid backend</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../networking/cups-print-server/">Set up a CUPS print server</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../software/">Managing software</a><input aria-label="Toggle navigation of Managing software" class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../software/package-management/">Package management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../software/automatic-updates/">Automatic updates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../software/upgrade-your-release/">Upgrade your release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../software/snapshot-service/">Snapshot service</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../software/report-a-bug/">Reporting bugs</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../data-and-storage/">Data and storage</a><input aria-label="Toggle navigation of Data and storage" class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" role="switch" type="checkbox"/><label for="toctree-checkbox-15"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../openldap/">OpenLDAP</a><input aria-label="Toggle navigation of OpenLDAP" class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" role="switch" type="checkbox"/><label for="toctree-checkbox-16"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../openldap/install-openldap/">Install OpenLDAP</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../openldap/access-control/">Set up access control</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../openldap/replication/">OpenLDAP with replication</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../openldap/users-and-groups/">User and group management</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../openldap/ldap-and-tls/">OpenLDAP and TLS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../openldap/backup-and-restore/">Backup and restore</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../openldap/ldap-saslauthd-authentication-intro/">Introduction to passthrough authentication</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../openldap/ldap-saslauthd-kerberos/">Passthrough authentication with Kerberos</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../databases/">Databases</a><input aria-label="Toggle navigation of Databases" class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" role="switch" type="checkbox"/><label for="toctree-checkbox-17"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../databases/install-mysql/">MySQL</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../databases/install-postgresql/">PostgreSQL</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../storage/">Storage</a><input aria-label="Toggle navigation of Storage" class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" role="switch" type="checkbox"/><label for="toctree-checkbox-18"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../storage/manage-logical-volumes/">Manage logical volumes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../storage/iscsi-initiator-or-client/">iSCSI</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../backups/">Backups and version control</a><input aria-label="Toggle navigation of Backups and version control" class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" role="switch" type="checkbox"/><label for="toctree-checkbox-19"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../backups/install-bacula/">Install Bacula</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../backups/install-rsnapshot/">Install rsnapshot</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../backups/back-up-using-shell-scripts/">Backup with shell scripts</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../backups/install-etckeeper/">etckeeper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../backups/install-gitolite/">Install gitolite</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../mail-services/">Mail services</a><input aria-label="Toggle navigation of Mail services" class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" role="switch" type="checkbox"/><label for="toctree-checkbox-20"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../mail-services/install-postfix/">Install Postfix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../mail-services/install-exim4/">Install Exim4</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../mail-services/install-dovecot/">Install Dovecot</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../web-services/">Web services</a><input aria-label="Toggle navigation of Web services" class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" role="switch" type="checkbox"/><label for="toctree-checkbox-21"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../web-services/install-a-squid-server/">Install a Squid server</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../web-services/install-apache2/">Install Apache2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../web-services/configure-apache2-settings/">Apache2 settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../web-services/use-apache2-modules/">Apache2 modules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../web-services/install-nginx/">Install nginx</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../web-services/configure-nginx/">nginx settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../web-services/use-nginx-modules/">nginx modules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../web-services/install-php/">Install PHP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../web-services/install-ruby-on-rails/">Install Ruby on Rails</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../graphics/">Graphics</a><input aria-label="Toggle navigation of Graphics" class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" role="switch" type="checkbox"/><label for="toctree-checkbox-22"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../graphics/install-nvidia-drivers/">Install NVIDIA drivers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../graphics/gpu-virtualization-with-qemu-kvm/">vGPU with QEMU/KVM</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../virtualisation/">Virtualisation</a><input aria-label="Toggle navigation of Virtualisation" class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" role="switch" type="checkbox"/><label for="toctree-checkbox-23"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../virtualisation/lxd/">LXD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../virtualisation/multipass/">Multipass</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../virtualisation/cloud-image-vms-with-uvtool/">UVtool</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../virtualisation/qemu/">QEMU</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../virtualisation/sev-snp/">AMD SEV</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../virtualisation/intel-tdx/">Intel TDX</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../virtualisation/libvirt/">Libvirt and virsh</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../virtualisation/virtual-machine-manager/">virt-manager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../virtualisation/enable-nested-virtualisation/">Nested virtualization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../virtualisation/ubuntu-on-hyper-v/">Ubuntu on Hyper-V</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../containers/">Containers</a><input aria-label="Toggle navigation of Containers" class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" role="switch" type="checkbox"/><label for="toctree-checkbox-24"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../virtualisation/lxd/">LXD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../containers/docker-for-system-admins/">Docker for sysadmins</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../containers/run-rocks-on-your-server/">How to run rocks on your server</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../high-availability/">High availability</a><input aria-label="Toggle navigation of High availability" class="toctree-checkbox" id="toctree-checkbox-25" name="toctree-checkbox-25" role="switch" type="checkbox"/><label for="toctree-checkbox-25"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../high-availability/install-drbd/">Distributed Replicated Block Device (DRBD)</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../observability/">Observability</a><input aria-label="Toggle navigation of Observability" class="toctree-checkbox" id="toctree-checkbox-26" name="toctree-checkbox-26" role="switch" type="checkbox"/><label for="toctree-checkbox-26"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../observability/set-up-your-lma-stack/">Set up your LMA stack</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../observability/install-logwatch/">Install Logwatch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../observability/install-munin/">Install Munin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../observability/install-nagios/">Install Nagios Core 3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../observability/use-nagios-with-munin/">Use Nagios with Munin</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../debugging/">Debugging</a><input aria-label="Toggle navigation of Debugging" class="toctree-checkbox" id="toctree-checkbox-27" name="toctree-checkbox-27" role="switch" type="checkbox"/><label for="toctree-checkbox-27"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../debugging/about-debuginfod/">About debuginfod</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../debugging/debug-symbol-packages/">Debug symbol packages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../software/kernel-crash-dump/">Kernel crash dump</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../debugging/ebpf/">eBPF</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../reference/">Reference</a><input aria-label="Toggle navigation of Reference" class="toctree-checkbox" id="toctree-checkbox-28" name="toctree-checkbox-28" role="switch" type="checkbox"/><label for="toctree-checkbox-28"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../reference/glossary/">Glossary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../reference/installation/system-requirements/">System requirements</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../reference/high-availability/">High availability</a><input aria-label="Toggle navigation of High availability" class="toctree-checkbox" id="toctree-checkbox-29" name="toctree-checkbox-29" role="switch" type="checkbox"/><label for="toctree-checkbox-29"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/high-availability/migrate-from-crmsh-to-pcs/">Migrate from crmsh to pcs</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../reference/other-tools/">Other tools</a><input aria-label="Toggle navigation of Other tools" class="toctree-checkbox" id="toctree-checkbox-30" name="toctree-checkbox-30" role="switch" type="checkbox"/><label for="toctree-checkbox-30"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/other-tools/terminal-multiplexers/">terminal-multiplexers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/other-tools/pam-motd/">pam_motd</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/other-tools/sudo-rs/">sudo-rs</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../explanation/">Explanation</a><input aria-label="Toggle navigation of Explanation" class="toctree-checkbox" id="toctree-checkbox-31" name="toctree-checkbox-31" role="switch" type="checkbox"/><label for="toctree-checkbox-31"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../explanation/security/">Security</a><input aria-label="Toggle navigation of Security" class="toctree-checkbox" id="toctree-checkbox-32" name="toctree-checkbox-32" role="switch" type="checkbox"/><label for="toctree-checkbox-32"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/intro-to/security/">Introduction to security</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/security/security_suggestions/">Security suggestions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/intro-to/kerberos/">Introduction to Kerberos</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/intro-to/sssd/">Introduction to network user authentication with SSSD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/dnssec/dnssec/">DNSSEC</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../explanation/cryptography/">Cryptography</a><input aria-label="Toggle navigation of Cryptography" class="toctree-checkbox" id="toctree-checkbox-33" name="toctree-checkbox-33" role="switch" type="checkbox"/><label for="toctree-checkbox-33"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../explanation/intro-to/crypto-libraries/">Introduction to cryptographic libraries</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../explanation/crypto/openssl/">OpenSSL</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../explanation/crypto/gnutls/">GnuTLS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../explanation/crypto/network-security-services-nss/">Network Security Services (NSS)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../explanation/crypto/java-cryptography-configuration/">Java cryptography configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../explanation/crypto/bind-9-dnssec-cryptography-selection/">BIND 9 DNSSEC cryptography selection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../explanation/crypto/openssh-crypto-configuration/">OpenSSH crypto configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../explanation/crypto/troubleshooting-tls-ssl/">Troubleshooting TLS/SSL</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/security/certificates/">Certificates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/intro-to/wireguard-vpn/">Introduction to WireGuard VPN</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/security/openvpn-client-implementations/">OpenVPN clients</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../explanation/networking/">Networking</a><input aria-label="Toggle navigation of Networking" class="toctree-checkbox" id="toctree-checkbox-34" name="toctree-checkbox-34" role="switch" type="checkbox"/><label for="toctree-checkbox-34"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/intro-to/networking/">Introduction to networking</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/networking/networking-key-concepts/">Networking key concepts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/networking/about-netplan/">About Netplan</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/networking/configuring-networks/">Configuring networks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/networking/about-dpdk/">The DPDK library</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/networking/about-dhcp/">About DHCP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/networking/about-time-synchronisation/">Time synchronisation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/intro-to/samba/">Introduction to Samba</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../explanation/active-directory/">Active Directory integration</a><input aria-label="Toggle navigation of Active Directory integration" class="toctree-checkbox" id="toctree-checkbox-35" name="toctree-checkbox-35" role="switch" type="checkbox"/><label for="toctree-checkbox-35"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../explanation/intro-to/AD-integration/">Introduction to Active Directory integration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../explanation/active-directory/choosing-an-integration-method/">Choosing an integration method</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../explanation/active-directory/security-identifiers-sids/">Security identifiers (SIDs)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../explanation/active-directory/identity-mapping-idmap-backends/">Identity Mapping (idmap) backends</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../explanation/active-directory/the-rid-idmap-backend/">The rid idmap backend</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../explanation/active-directory/the-autorid-idmap-backend/">The autorid idmap backend</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../explanation/software/">Managing software</a><input aria-label="Toggle navigation of Managing software" class="toctree-checkbox" id="toctree-checkbox-36" name="toctree-checkbox-36" role="switch" type="checkbox"/><label for="toctree-checkbox-36"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/software/third-party-repository-usage/">Third party repository usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/software/changing-package-files/">Changing package files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/software/config-managers/">Configuration managers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/software/about-apt-upgrade-and-phased-updates/">About apt upgrade and phased updates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/software/advance-testing-of-updates-in-best-practice-server-deployments/">Advance testing of updates in best practice server deployments</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../explanation/data-and-storage/">Data and storage</a><input aria-label="Toggle navigation of Data and storage" class="toctree-checkbox" id="toctree-checkbox-37" name="toctree-checkbox-37" role="switch" type="checkbox"/><label for="toctree-checkbox-37"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/intro-to/openldap/">Introduction to OpenLDAP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/intro-to/databases/">Introduction to databases</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../explanation/storage/">Storage</a><input aria-label="Toggle navigation of Storage" class="toctree-checkbox" id="toctree-checkbox-38" name="toctree-checkbox-38" role="switch" type="checkbox"/><label for="toctree-checkbox-38"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../explanation/storage/about-lvm/">About LVM</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../explanation/multipath/">Multipath</a><input aria-label="Toggle navigation of Multipath" class="toctree-checkbox" id="toctree-checkbox-39" name="toctree-checkbox-39" role="switch" type="checkbox"/><label for="toctree-checkbox-39"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../explanation/intro-to/multipath/">Introduction to device mapper multipathing (“multipath”)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../explanation/multipath/configuring-multipath/">Configuration options and overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../explanation/multipath/multipath-configuration-examples/">Configuration examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../explanation/multipath/common-multipath-tasks-and-procedures/">Common tasks and procedures</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../explanation/web-services/">Web services</a><input aria-label="Toggle navigation of Web services" class="toctree-checkbox" id="toctree-checkbox-40" name="toctree-checkbox-40" role="switch" type="checkbox"/><label for="toctree-checkbox-40"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/intro-to/web-servers/">Introduction to web servers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/web-services/about-web-servers/">About web servers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/web-services/about-squid-proxy-servers/">About Squid proxy servers</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../explanation/virtualisation/">Virtualisation and containers</a><input aria-label="Toggle navigation of Virtualisation and containers" class="toctree-checkbox" id="toctree-checkbox-41" name="toctree-checkbox-41" role="switch" type="checkbox"/><label for="toctree-checkbox-41"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/intro-to/virtualisation/">Introduction to virtualization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/virtualisation/vm-tools-in-the-ubuntu-space/">VM tools overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/virtualisation/qemu-microvm/">QEMU microvm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/virtualisation/upgrading-the-machine-type-of-your-vm/">Upgrade VM machine type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/virtualisation/container-tools-in-the-ubuntu-space/">Container tools overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/virtualisation/about-rock-images/">About rock images</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/virtualisation/docker-storage-networking-and-logging/">Docker storage, networking, and logging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/virtualisation/about-openstack/">About OpenStack</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../explanation/clouds/">Clouds</a><input aria-label="Toggle navigation of Clouds" class="toctree-checkbox" id="toctree-checkbox-42" name="toctree-checkbox-42" role="switch" type="checkbox"/><label for="toctree-checkbox-42"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/intro-to/cloud-init/">About cloud-init</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/clouds/find-cloud-images/">Cloud images</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../explanation/high-availability/">High Availability</a><input aria-label="Toggle navigation of High Availability" class="toctree-checkbox" id="toctree-checkbox-43" name="toctree-checkbox-43" role="switch" type="checkbox"/><label for="toctree-checkbox-43"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/intro-to/high-availability/">Introduction to HA</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/high-availability/pacemaker-resource-agents/">Pacemaker resource agents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/high-availability/pacemaker-fence-agents/">Pacemaker fence agents</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../explanation/performance/">Performance</a><input aria-label="Toggle navigation of Performance" class="toctree-checkbox" id="toctree-checkbox-44" name="toctree-checkbox-44" role="switch" type="checkbox"/><label for="toctree-checkbox-44"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/performance/perf-pgo/">Profile-Guided Optimization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/performance/perf-tune-hwloc/">hwloc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/performance/perf-p-states/">CPU Power (states)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/performance/perf-tune-cpupower/">cpupower (tool)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../explanation/performance/perf-tune-tuned/">TuneD</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../contributing/">Contributing</a><input aria-label="Toggle navigation of Contributing" class="toctree-checkbox" id="toctree-checkbox-45" name="toctree-checkbox-45" role="switch" type="checkbox"/><label for="toctree-checkbox-45"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributing/">Contribute to this documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributing/contrib-types/">Types of contributions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributing/local-development/">Local development</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributing/writing-guidance/">Guidance for writing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributing/get-help/">Getting help</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributing/contributors/">Our contributors</a></li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="edit-this-page">
+  <a class="muted-link" href="https://github.com/canonical/ubuntu-server-documentation/edit/main/docs/how-to/security/firewalls.md" title="Contribute to this page">
+    <svg><use href="#svg-pencil"></use></svg>
+    <span class="visually-hidden">Contribute to this page</span>
+  </a>
+</div><div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section class="tex2jax_ignore mathjax_ignore" id="firewall">
+<span id="firewalls"></span><h1>Firewall<a class="headerlink" href="#firewall" title="Link to this heading">¶</a></h1>
+<p>The Linux kernel includes the <strong><a class="reference external" href="https://netfilter.org/">netfilter</a></strong> subsystem, which is used to manipulate or decide the fate of network traffic headed into or through your server. All modern Linux firewall solutions use this system for packet filtering.</p>
+<p>The kernel’s packet filtering system would be of little use to administrators without a userspace interface to manage it. This is the purpose of the <strong><code class="docutils literal notranslate"><span class="pre">iptables</span></code></strong> utility: when a packet reaches your server, it will be handed off to the netfilter subsystem for acceptance, manipulation, or rejection based on the rules supplied to it from the userspace (via <code class="docutils literal notranslate"><span class="pre">iptables</span></code>). Thus, <code class="docutils literal notranslate"><span class="pre">iptables</span></code> is all you need to manage your firewall, if you’re familiar with it, but many <a class="hxr-hoverxref hxr-tooltip reference internal" href="../../../reference/glossary/#term-frontend"><span class="xref std std-term">frontends</span></a> are available to simplify the task. We’ll take a look at the default frontend used in Ubuntu here.</p>
+<section id="ufw-uncomplicated-firewall">
+<h2>ufw - Uncomplicated Firewall<a class="headerlink" href="#ufw-uncomplicated-firewall" title="Link to this heading">¶</a></h2>
+<p>The default firewall configuration tool for Ubuntu is <code class="docutils literal notranslate"><span class="pre">ufw</span></code>. Developed to ease <code class="docutils literal notranslate"><span class="pre">iptables</span></code> firewall configuration, <code class="docutils literal notranslate"><span class="pre">ufw</span></code> provides a user-friendly way to create an IPv4 or IPv6 host-based firewall.</p>
+<p><code class="docutils literal notranslate"><span class="pre">ufw</span></code> by default is initially disabled. From the <em class="manpage"><a class="manpage reference external" href="https://manpages.ubuntu.com/manpages/resolute/en/man8/ufw.8.html">ufw(8)</a></em> manual page:</p>
+<blockquote>
+<div><p>ufw is not intended to provide complete firewall functionality via its command interface, but instead provides an easy way to add or remove simple rules. It is currently mainly used for host-based firewalls.</p>
+</div></blockquote>
+<section id="enable-or-disable-ufw">
+<h3>Enable or disable ufw<a class="headerlink" href="#enable-or-disable-ufw" title="Link to this heading">¶</a></h3>
+<p>To enable <code class="docutils literal notranslate"><span class="pre">ufw</span></code>, run the following command from a terminal prompt:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>ufw<span class="w"> </span><span class="nb">enable</span>
+</pre></div>
+</div>
+<p>To disable it, you can use the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>ufw<span class="w"> </span>disable
+</pre></div>
+</div>
+</section>
+<section id="open-or-close-a-port">
+<h3>Open or close a port<a class="headerlink" href="#open-or-close-a-port" title="Link to this heading">¶</a></h3>
+<p>To open a port (SSH in this case):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>ufw<span class="w"> </span>allow<span class="w"> </span><span class="m">22</span>
+</pre></div>
+</div>
+<p>Similarly, to close an opened port:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>ufw<span class="w"> </span>deny<span class="w"> </span><span class="m">22</span>
+</pre></div>
+</div>
+</section>
+<section id="add-or-remove-a-rule">
+<h3>Add or remove a rule<a class="headerlink" href="#add-or-remove-a-rule" title="Link to this heading">¶</a></h3>
+<p>Rules can also be added using a <strong>numbered</strong> format:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>ufw<span class="w"> </span>insert<span class="w"> </span><span class="m">1</span><span class="w"> </span>allow<span class="w"> </span><span class="m">80</span>
+</pre></div>
+</div>
+<p>To view the numbered format:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>ufw<span class="w"> </span>status<span class="w"> </span>numbered
+</pre></div>
+</div>
+<p>To remove a rule, use <code class="docutils literal notranslate"><span class="pre">delete</span></code> followed by the rule:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>ufw<span class="w"> </span>delete<span class="w"> </span>deny<span class="w"> </span><span class="m">22</span>
+</pre></div>
+</div>
+</section>
+<section id="allow-access-from-specific-hosts">
+<h3>Allow access from specific hosts<a class="headerlink" href="#allow-access-from-specific-hosts" title="Link to this heading">¶</a></h3>
+<p>It is possible to allow access from specific hosts or networks to a port. The following example allows SSH access from host <code class="docutils literal notranslate"><span class="pre">192.168.0.2</span></code> to any IP address on this host:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>ufw<span class="w"> </span>allow<span class="w"> </span>proto<span class="w"> </span>tcp<span class="w"> </span>from<span class="w"> </span><span class="m">192</span>.168.0.2<span class="w"> </span>to<span class="w"> </span>any<span class="w"> </span>port<span class="w"> </span><span class="m">22</span>
+</pre></div>
+</div>
+<p>Replace <code class="docutils literal notranslate"><span class="pre">192.168.0.2</span></code> with <code class="docutils literal notranslate"><span class="pre">192.168.0.0/24</span></code> to allow SSH access from the entire subnet.</p>
+</section>
+<section id="the-dry-run-option">
+<h3>The <code class="docutils literal notranslate"><span class="pre">--dry-run</span></code> option<a class="headerlink" href="#the-dry-run-option" title="Link to this heading">¶</a></h3>
+<p>Adding the <code class="docutils literal notranslate"><span class="pre">--dry-run</span></code> option to a <code class="docutils literal notranslate"><span class="pre">ufw</span></code> command will output the resulting rules, but not apply them. For example, the following is what would be applied if opening the HTTP port:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>ufw<span class="w"> </span>--dry-run<span class="w"> </span>allow<span class="w"> </span>http
+
+<span class="w">    </span>*filter
+<span class="w">    </span>:ufw-user-input<span class="w"> </span>-<span class="w"> </span><span class="o">[</span><span class="m">0</span>:0<span class="o">]</span>
+<span class="w">    </span>:ufw-user-output<span class="w"> </span>-<span class="w"> </span><span class="o">[</span><span class="m">0</span>:0<span class="o">]</span>
+<span class="w">    </span>:ufw-user-forward<span class="w"> </span>-<span class="w"> </span><span class="o">[</span><span class="m">0</span>:0<span class="o">]</span>
+<span class="w">    </span>:ufw-user-limit<span class="w"> </span>-<span class="w"> </span><span class="o">[</span><span class="m">0</span>:0<span class="o">]</span>
+<span class="w">    </span>:ufw-user-limit-accept<span class="w"> </span>-<span class="w"> </span><span class="o">[</span><span class="m">0</span>:0<span class="o">]</span>
+<span class="w">    </span><span class="c1">### RULES ###</span>
+
+<span class="w">    </span><span class="c1">### tuple ### allow tcp 80 0.0.0.0/0 any 0.0.0.0/0</span>
+<span class="w">    </span>-A<span class="w"> </span>ufw-user-input<span class="w"> </span>-p<span class="w"> </span>tcp<span class="w"> </span>--dport<span class="w"> </span><span class="m">80</span><span class="w"> </span>-j<span class="w"> </span>ACCEPT
+
+<span class="w">    </span><span class="c1">### END RULES ###</span>
+<span class="w">    </span>-A<span class="w"> </span>ufw-user-input<span class="w"> </span>-j<span class="w"> </span>RETURN
+<span class="w">    </span>-A<span class="w"> </span>ufw-user-output<span class="w"> </span>-j<span class="w"> </span>RETURN
+<span class="w">    </span>-A<span class="w"> </span>ufw-user-forward<span class="w"> </span>-j<span class="w"> </span>RETURN
+<span class="w">    </span>-A<span class="w"> </span>ufw-user-limit<span class="w"> </span>-m<span class="w"> </span>limit<span class="w"> </span>--limit<span class="w"> </span><span class="m">3</span>/minute<span class="w"> </span>-j<span class="w"> </span>LOG<span class="w"> </span>--log-prefix<span class="w"> </span><span class="s2">&quot;[UFW LIMIT]: &quot;</span>
+<span class="w">    </span>-A<span class="w"> </span>ufw-user-limit<span class="w"> </span>-j<span class="w"> </span>REJECT
+<span class="w">    </span>-A<span class="w"> </span>ufw-user-limit-accept<span class="w"> </span>-j<span class="w"> </span>ACCEPT
+<span class="w">    </span>COMMIT
+<span class="w">    </span>Rules<span class="w"> </span>updated
+</pre></div>
+</div>
+</section>
+<section id="check-the-status">
+<h3>Check the status<a class="headerlink" href="#check-the-status" title="Link to this heading">¶</a></h3>
+<p>To see the firewall status, enter:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>ufw<span class="w"> </span>status
+</pre></div>
+</div>
+<p>And for more verbose status information use:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>ufw<span class="w"> </span>status<span class="w"> </span>verbose
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If the port you want to open or close is defined in <code class="docutils literal notranslate"><span class="pre">/etc/services</span></code>, you can use the port name instead of the number. In the above examples, replace <code class="docutils literal notranslate"><span class="pre">22</span></code> with <code class="docutils literal notranslate"><span class="pre">ssh</span></code>.</p>
+</div>
+<p>This is a quick introduction to using <code class="docutils literal notranslate"><span class="pre">ufw</span></code>. Please refer to the <em class="manpage"><a class="manpage reference external" href="https://manpages.ubuntu.com/manpages/resolute/en/man8/ufw.8.html">ufw(8)</a></em> manual page for more information.</p>
+</section>
+<section id="ufw-application-integration">
+<h3>ufw application integration<a class="headerlink" href="#ufw-application-integration" title="Link to this heading">¶</a></h3>
+<p>Applications that open ports can include a <code class="docutils literal notranslate"><span class="pre">ufw</span></code> profile, which details the ports needed for the application to function properly. The profiles are kept in <code class="docutils literal notranslate"><span class="pre">/etc/ufw/applications.d</span></code>, and can be edited if the default ports have been changed.</p>
+<p>To view which applications have installed a profile, run the following in a terminal:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>ufw<span class="w"> </span>app<span class="w"> </span>list
+</pre></div>
+</div>
+<p>Similar to allowing traffic to a port, using an application profile is accomplished by entering:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>ufw<span class="w"> </span>allow<span class="w"> </span>Samba
+</pre></div>
+</div>
+<p>An extended syntax is available as well:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ufw<span class="w"> </span>allow<span class="w"> </span>from<span class="w"> </span><span class="m">192</span>.168.0.0/24<span class="w"> </span>to<span class="w"> </span>any<span class="w"> </span>app<span class="w"> </span>Samba
+</pre></div>
+</div>
+<p>Replace <code class="docutils literal notranslate"><span class="pre">Samba</span></code> and <code class="docutils literal notranslate"><span class="pre">192.168.0.0/24</span></code> with the application profile you are using and the IP range for your network.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>There is no need to specify the <strong>protocol</strong> for the application, because that information is detailed in the profile. Also, note that the <code class="docutils literal notranslate"><span class="pre">app</span></code> name replaces the <code class="docutils literal notranslate"><span class="pre">port</span></code> number.</p>
+</div>
+<p>To view details about which ports and protocols, and so on, are defined for an application, enter:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>ufw<span class="w"> </span>app<span class="w"> </span>info<span class="w"> </span>Samba
+</pre></div>
+</div>
+<p>Not all applications that require opening a network port come with <code class="docutils literal notranslate"><span class="pre">ufw</span></code> profiles, but if you have profiled an application and want the file to be included with the package, please file a bug against the package in Launchpad.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ubuntu-bug<span class="w"> </span>nameofpackage
+</pre></div>
+</div>
+</section>
+</section>
+<section id="ip-masquerading">
+<h2>IP masquerading<a class="headerlink" href="#ip-masquerading" title="Link to this heading">¶</a></h2>
+<p>The purpose of IP masquerading is to allow machines with private, non-routable IP addresses on your network to access the Internet through the machine doing the masquerading. Traffic from your private network destined for the Internet must be manipulated for replies to be routable back to the machine that made the request.</p>
+<p>To do this, the kernel must modify the <strong>source</strong> IP address of each packet so that replies will be routed back to it, rather than to the private IP address that made the request, which is impossible over the Internet. Linux uses <strong>Connection Tracking</strong> (<em class="manpage"><a class="manpage reference external" href="https://manpages.ubuntu.com/manpages/resolute/en/man8/conntrack.8.html">conntrack(8)</a></em>) to keep track of which connections belong to which machines and reroute each return packet accordingly. Traffic leaving your private network is thus “masqueraded” as having originated from your Ubuntu gateway machine. This process is referred to in Microsoft documentation as “Internet Connection Sharing”.</p>
+<section id="ip-masquerading-with-ufw">
+<h3>IP masquerading with ufw<a class="headerlink" href="#ip-masquerading-with-ufw" title="Link to this heading">¶</a></h3>
+<p>IP masquerading can be achieved using custom <code class="docutils literal notranslate"><span class="pre">ufw</span></code> rules. This is possible because the current back-end for <code class="docutils literal notranslate"><span class="pre">ufw</span></code> is <code class="docutils literal notranslate"><span class="pre">iptables-restore</span></code> with the rules files located in <code class="docutils literal notranslate"><span class="pre">/etc/ufw/*.rules</span></code>. These files are a great place to add legacy <code class="docutils literal notranslate"><span class="pre">iptables</span></code> rules used without <code class="docutils literal notranslate"><span class="pre">ufw</span></code>, and rules that are more network gateway or bridge related.</p>
+<p>The rules are split into two different files; rules that should be executed before <code class="docutils literal notranslate"><span class="pre">ufw</span></code> command line rules, and rules that are executed after <code class="docutils literal notranslate"><span class="pre">ufw</span></code> command line rules.</p>
+<section id="enable-packet-forwarding">
+<h4>Enable packet forwarding<a class="headerlink" href="#enable-packet-forwarding" title="Link to this heading">¶</a></h4>
+<p>First, packet forwarding needs to be enabled in <code class="docutils literal notranslate"><span class="pre">ufw</span></code>. Two configuration files will need to be adjusted, so first, in <code class="docutils literal notranslate"><span class="pre">/etc/default/ufw</span></code> change the <code class="docutils literal notranslate"><span class="pre">DEFAULT_FORWARD_POLICY</span></code> to <code class="docutils literal notranslate"><span class="pre">“ACCEPT”</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">DEFAULT_FORWARD_POLICY</span><span class="o">=</span><span class="s2">&quot;ACCEPT&quot;</span>
+</pre></div>
+</div>
+<p>Then, edit <code class="docutils literal notranslate"><span class="pre">/etc/ufw/sysctl.conf</span></code> and uncomment:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">net</span><span class="o">/</span><span class="n">ipv4</span><span class="o">/</span><span class="n">ip_forward</span><span class="o">=</span><span class="mi">1</span>
+</pre></div>
+</div>
+<p>Similarly, for IPv6 forwarding, uncomment:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">net</span><span class="o">/</span><span class="n">ipv6</span><span class="o">/</span><span class="n">conf</span><span class="o">/</span><span class="n">default</span><span class="o">/</span><span class="n">forwarding</span><span class="o">=</span><span class="mi">1</span>
+</pre></div>
+</div>
+</section>
+<section id="add-the-configuration">
+<h4>Add the configuration<a class="headerlink" href="#add-the-configuration" title="Link to this heading">¶</a></h4>
+<p>Now add rules to the <code class="docutils literal notranslate"><span class="pre">/etc/ufw/before.rules</span></code> file. The default rules only configure the <strong>filter</strong> table, and to enable masquerading the <code class="docutils literal notranslate"><span class="pre">nat</span></code> table will need to be configured. Add the following to the top of the file, just after the header comments:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># nat Table rules</span>
+<span class="o">*</span><span class="n">nat</span>
+<span class="p">:</span><span class="n">POSTROUTING</span> <span class="n">ACCEPT</span> <span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># Forward traffic from eth1 through eth0.</span>
+<span class="o">-</span><span class="n">A</span> <span class="n">POSTROUTING</span> <span class="o">-</span><span class="n">s</span> <span class="mf">192.168.0.0</span><span class="o">/</span><span class="mi">24</span> <span class="o">-</span><span class="n">o</span> <span class="n">eth0</span> <span class="o">-</span><span class="n">j</span> <span class="n">MASQUERADE</span>
+
+<span class="c1"># don&#39;t delete the &#39;COMMIT&#39; line or these nat table rules won&#39;t be processed</span>
+<span class="n">COMMIT</span>
+</pre></div>
+</div>
+<p>The comments are not strictly necessary, but it is considered good practice to document your configuration. Also, when modifying any of the <code class="docutils literal notranslate"><span class="pre">rules</span></code> files in <code class="docutils literal notranslate"><span class="pre">/etc/ufw</span></code>, make sure these lines are the last line for each table modified:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># don&#39;t delete the &#39;COMMIT&#39; line or these rules won&#39;t be processed</span>
+<span class="n">COMMIT</span>
+</pre></div>
+</div>
+<p>For each <strong>Table</strong>, a corresponding <code class="docutils literal notranslate"><span class="pre">COMMIT</span></code> statement is required. In these examples only the <code class="docutils literal notranslate"><span class="pre">nat</span></code> and <code class="docutils literal notranslate"><span class="pre">filter</span></code> tables are shown, but you can also add rules for the <code class="docutils literal notranslate"><span class="pre">raw</span></code> and <code class="docutils literal notranslate"><span class="pre">mangle</span></code> tables.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In the above example, replace <code class="docutils literal notranslate"><span class="pre">eth0</span></code>, <code class="docutils literal notranslate"><span class="pre">eth1</span></code>, and <code class="docutils literal notranslate"><span class="pre">192.168.0.0/24</span></code> with the appropriate interfaces and IP range for your network.</p>
+</div>
+</section>
+<section id="restart-ufw">
+<h4>Restart ufw<a class="headerlink" href="#restart-ufw" title="Link to this heading">¶</a></h4>
+<p>Finally, disable and re-enable <code class="docutils literal notranslate"><span class="pre">ufw</span></code> to apply the changes:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>ufw<span class="w"> </span>disable<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>sudo<span class="w"> </span>ufw<span class="w"> </span><span class="nb">enable</span>
+</pre></div>
+</div>
+<p>IP masquerading should now be enabled. You can also add any additional <code class="docutils literal notranslate"><span class="pre">FORWARD</span></code> rules to the <code class="docutils literal notranslate"><span class="pre">/etc/ufw/before.rules</span></code>. It is recommended that these additional rules be added to the <code class="docutils literal notranslate"><span class="pre">ufw-before-forward</span></code> chain.</p>
+</section>
+</section>
+<section id="ip-masquerading-with-iptables">
+<h3>IP masquerading with iptables<a class="headerlink" href="#ip-masquerading-with-iptables" title="Link to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">iptables</span></code> can also be used to enable masquerading.</p>
+<p>Similarly to <code class="docutils literal notranslate"><span class="pre">ufw</span></code>, the first step is to enable IPv4 packet forwarding by editing <code class="docutils literal notranslate"><span class="pre">/etc/sysctl.conf</span></code> and uncomment the following line:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">net</span><span class="o">.</span><span class="n">ipv4</span><span class="o">.</span><span class="n">ip_forward</span><span class="o">=</span><span class="mi">1</span>
+</pre></div>
+</div>
+<p>If you wish to enable IPv6 forwarding also uncomment:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">net</span><span class="o">.</span><span class="n">ipv6</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">default</span><span class="o">.</span><span class="n">forwarding</span><span class="o">=</span><span class="mi">1</span>
+</pre></div>
+</div>
+<p>Next, run the <code class="docutils literal notranslate"><span class="pre">sysctl</span></code> command to enable the new settings in the configuration file:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>sysctl<span class="w"> </span>-p
+</pre></div>
+</div>
+<p>IP masquerading can now be accomplished with a single <code class="docutils literal notranslate"><span class="pre">iptables</span></code> rule, which may differ slightly based on your network configuration:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>iptables<span class="w"> </span>-t<span class="w"> </span>nat<span class="w"> </span>-A<span class="w"> </span>POSTROUTING<span class="w"> </span>-s<span class="w"> </span><span class="m">192</span>.168.0.0/16<span class="w"> </span>-o<span class="w"> </span>ppp0<span class="w"> </span>-j<span class="w"> </span>MASQUERADE
+</pre></div>
+</div>
+<p>The above command assumes that your private address space is <code class="docutils literal notranslate"><span class="pre">192.168.0.0/16</span></code> and that your Internet-facing device is <code class="docutils literal notranslate"><span class="pre">ppp0</span></code>. The syntax is broken down as follows:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-t</span> <span class="pre">nat</span></code> – the rule is to go into the NAT table</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-A</span> <span class="pre">POSTROUTING</span></code> – the rule is to be appended (<code class="docutils literal notranslate"><span class="pre">-A</span></code>) to the <code class="docutils literal notranslate"><span class="pre">POSTROUTING</span></code> chain</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-s</span> <span class="pre">192.168.0.0/16</span></code> – the rule applies to traffic originating from the specified address space</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-o</span> <span class="pre">ppp0</span></code> – the rule applies to traffic scheduled to be routed through the specified network device</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-j</span> <span class="pre">MASQUERADE</span></code> – traffic matching this rule is to “jump” (<code class="docutils literal notranslate"><span class="pre">-j</span></code>) to the <code class="docutils literal notranslate"><span class="pre">MASQUERADE</span></code> target to be manipulated as described above</p></li>
+</ul>
+<p>Also, each chain in the filter table (the default table, and where most – or all – packet filtering occurs) has a default <strong>policy</strong> of <code class="docutils literal notranslate"><span class="pre">ACCEPT</span></code>, but if you are creating a firewall in addition to a gateway device, you may have set the policies to <code class="docutils literal notranslate"><span class="pre">DROP</span></code> or <code class="docutils literal notranslate"><span class="pre">REJECT</span></code>, in which case your masqueraded traffic needs to be allowed through the <code class="docutils literal notranslate"><span class="pre">FORWARD</span></code> chain for the above rule to work:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>iptables<span class="w"> </span>-A<span class="w"> </span>FORWARD<span class="w"> </span>-s<span class="w"> </span><span class="m">192</span>.168.0.0/16<span class="w"> </span>-o<span class="w"> </span>ppp0<span class="w"> </span>-j<span class="w"> </span>ACCEPT
+sudo<span class="w"> </span>iptables<span class="w"> </span>-A<span class="w"> </span>FORWARD<span class="w"> </span>-d<span class="w"> </span><span class="m">192</span>.168.0.0/16<span class="w"> </span>-m<span class="w"> </span>state<span class="w"> </span><span class="se">\</span>
+--state<span class="w"> </span>ESTABLISHED,RELATED<span class="w"> </span>-i<span class="w"> </span>ppp0<span class="w"> </span>-j<span class="w"> </span>ACCEPT
+</pre></div>
+</div>
+<p>The above commands will allow all connections from your local network to the Internet and all traffic related to those connections to return to the machine that initiated them.</p>
+<p>If you want masquerading to be enabled on reboot, which you probably do, edit <code class="docutils literal notranslate"><span class="pre">/etc/rc.local</span></code> and add any commands used above. For example add the first command with no filtering:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">iptables</span> <span class="o">-</span><span class="n">t</span> <span class="n">nat</span> <span class="o">-</span><span class="n">A</span> <span class="n">POSTROUTING</span> <span class="o">-</span><span class="n">s</span> <span class="mf">192.168.0.0</span><span class="o">/</span><span class="mi">16</span> <span class="o">-</span><span class="n">o</span> <span class="n">ppp0</span> <span class="o">-</span><span class="n">j</span> <span class="n">MASQUERADE</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="logs">
+<h2>Logs<a class="headerlink" href="#logs" title="Link to this heading">¶</a></h2>
+<p>Firewall logs are essential for recognizing attacks, troubleshooting your firewall rules, and noticing unusual activity on your network. You must include logging rules in your firewall for them to be generated, though, and logging rules must come before any applicable terminating rule (a rule with a target that decides the fate of the packet, such as <code class="docutils literal notranslate"><span class="pre">ACCEPT</span></code>, <code class="docutils literal notranslate"><span class="pre">DROP</span></code>, or <code class="docutils literal notranslate"><span class="pre">REJECT</span></code>).</p>
+<p>If you are using <code class="docutils literal notranslate"><span class="pre">ufw</span></code>, you can turn on logging by entering the following in a terminal:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>ufw<span class="w"> </span>logging<span class="w"> </span>on
+</pre></div>
+</div>
+<p>To turn logging off in <code class="docutils literal notranslate"><span class="pre">ufw</span></code>, replace <code class="docutils literal notranslate"><span class="pre">on</span></code> with <code class="docutils literal notranslate"><span class="pre">off</span></code> in the above command:</p>
+<p>If you are using <code class="docutils literal notranslate"><span class="pre">iptables</span></code> instead of <code class="docutils literal notranslate"><span class="pre">ufw</span></code>, run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>iptables<span class="w"> </span>-A<span class="w"> </span>INPUT<span class="w"> </span>-m<span class="w"> </span>state<span class="w"> </span>--state<span class="w"> </span>NEW<span class="w"> </span>-p<span class="w"> </span>tcp<span class="w"> </span>--dport<span class="w"> </span><span class="m">80</span><span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>-j<span class="w"> </span>LOG<span class="w"> </span>--log-prefix<span class="w"> </span><span class="s2">&quot;NEW_HTTP_CONN: &quot;</span>
+</pre></div>
+</div>
+<p>A request on port <code class="docutils literal notranslate"><span class="pre">80</span></code> from the local machine, then, would generate a log in <a class="hxr-hoverxref hxr-tooltip reference internal" href="../../../reference/glossary/#term-dmesg"><span class="xref std std-term">dmesg</span></a> that looks like this (single line split into 3 to fit this document):</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[4304885.870000] NEW_HTTP_CONN: IN=lo OUT= MAC=00:00:00:00:00:00:00:00:00:00:00:00:08:00
+SRC=127.0.0.1 DST=127.0.0.1 LEN=60 TOS=0x00 PREC=0x00 TTL=64 ID=58288 DF PROTO=TCP
+SPT=53981 DPT=80 WINDOW=32767 RES=0x00 SYN URGP=0
+</pre></div>
+</div>
+<p>The above log will also appear in <code class="docutils literal notranslate"><span class="pre">/var/log/messages</span></code>, <code class="docutils literal notranslate"><span class="pre">/var/log/syslog</span></code>, and <code class="docutils literal notranslate"><span class="pre">/var/log/kern.log</span></code>. This behavior can be modified by editing <code class="docutils literal notranslate"><span class="pre">/etc/syslog.conf</span></code> appropriately or by installing and configuring <code class="docutils literal notranslate"><span class="pre">ulogd</span></code> and using the <code class="docutils literal notranslate"><span class="pre">ULOG</span></code> target instead of <code class="docutils literal notranslate"><span class="pre">LOG</span></code>. The <code class="docutils literal notranslate"><span class="pre">ulogd</span></code> daemon is a userspace server that listens for logging instructions from the kernel – specifically for firewalls – and can log to any file you like, or even to a PostgreSQL or MySQL database. Making sense of your firewall logs can be simplified by using a log analysing tool such as <code class="docutils literal notranslate"><span class="pre">logwatch</span></code>, <code class="docutils literal notranslate"><span class="pre">fwanalog</span></code>, <code class="docutils literal notranslate"><span class="pre">fwlogwatch</span></code>, or <code class="docutils literal notranslate"><span class="pre">lire</span></code>.</p>
+</section>
+<section id="other-tools">
+<h2>Other tools<a class="headerlink" href="#other-tools" title="Link to this heading">¶</a></h2>
+<p>There are many tools available to help you construct a complete firewall without intimate knowledge of <code class="docutils literal notranslate"><span class="pre">iptables</span></code>. A command-line tool with plain-text configuration files, for example, is <a class="reference external" href="https://shorewall.org/">Shorewall</a>; a powerful solution to help you configure an advanced firewall for any network.</p>
+</section>
+<section id="further-reading">
+<h2>Further reading<a class="headerlink" href="#further-reading" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>The <a class="reference external" href="https://wiki.ubuntu.com/UncomplicatedFirewall">Ubuntu Firewall</a> wiki page contains information on the development of <code class="docutils literal notranslate"><span class="pre">ufw</span></code></p></li>
+<li><p>Also, the <em class="manpage"><a class="manpage reference external" href="https://manpages.ubuntu.com/manpages/resolute/en/man8/ufw.8.html">ufw(8)</a></em> manual page contains some very useful information: <code class="docutils literal notranslate"><span class="pre">man</span> <span class="pre">ufw</span></code></p></li>
+<li><p>See the <a class="reference external" href="https://www.netfilter.org/documentation/HOWTO/packet-filtering-HOWTO.html">packet-filtering how-to</a> for more information on using <code class="docutils literal notranslate"><span class="pre">iptables</span></code></p></li>
+<li><p>The <a class="reference external" href="https://www.netfilter.org/documentation/HOWTO/NAT-HOWTO.html"><code class="docutils literal notranslate"><span class="pre">nat</span></code> how-to</a> contains further details on masquerading</p></li>
+<li><p>The <a class="reference external" href="https://help.ubuntu.com/community/IptablesHowTo"><code class="docutils literal notranslate"><span class="pre">iptables</span></code> how-to</a> in the Ubuntu wiki is a great resource</p></li>
+</ul>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+   
+
+<div class="related-pages">
+  
+  
+      
+  
+  
+  
+</div>
+<div class="bottom-of-page">
+  <div class="left-details">
+    <div class="copyright">
+        Copyright &#169; 2026, Canonical Group Ltd.
+    </div>
+
+    <div class="last-updated">
+      Last updated on Dec 11, 2025</div>
+  </div>
+  <div>
+    
+  </div>
+  <div class="right-details">
+
+    
+
+    
+    <div class="ask-discourse">
+      <a class="muted-link" href="https://discourse.ubuntu.com/c/server/17">Ask a question on Discourse</a>
+    </div>
+    
+
+    
+    <div class="ask-matrix">
+      <a class="muted-link" href="https://matrix.to/#/#server:ubuntu.com">Ask a question on Matrix</a>
+    </div>
+    
+
+    
+
+    
+    <div class="issue-github">
+      <a class="muted-link" href="https://github.com/canonical/ubuntu-server-documentation//issues/new?template=feedback.yml">Open a GitHub issue for this page</a>
+    </div>
+    
+
+    <div class="edit-github">
+      <a class="muted-link" href="https://github.com/canonical/ubuntu-server-documentation//edit/main/docs/how-to/security/firewalls.md">Edit this page on GitHub</a>
+    </div>
+    
+    <div class="view-page-source">
+      <a class="muted-link" href="../../../_sources/how-to/security/firewalls.md.txt" rel="nofollow">View page source</a>
+    </div>
+    
+
+
+    </div>
+  </div>
+</div>
+
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+<div class="toc-sticky toc-scroll">
+   
+    <div class="toc-title-container">
+      <span class="toc-title">
+       Contents
+      </span>
+    </div>
+    <div class="toc-tree-container">
+      <div class="toc-tree">
+        <ul>
+<li><a class="reference internal" href="#">Firewall</a><ul>
+<li><a class="reference internal" href="#ufw-uncomplicated-firewall">ufw - Uncomplicated Firewall</a><ul>
+<li><a class="reference internal" href="#enable-or-disable-ufw">Enable or disable ufw</a></li>
+<li><a class="reference internal" href="#open-or-close-a-port">Open or close a port</a></li>
+<li><a class="reference internal" href="#add-or-remove-a-rule">Add or remove a rule</a></li>
+<li><a class="reference internal" href="#allow-access-from-specific-hosts">Allow access from specific hosts</a></li>
+<li><a class="reference internal" href="#the-dry-run-option">The <code class="docutils literal notranslate"><span class="pre">--dry-run</span></code> option</a></li>
+<li><a class="reference internal" href="#check-the-status">Check the status</a></li>
+<li><a class="reference internal" href="#ufw-application-integration">ufw application integration</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ip-masquerading">IP masquerading</a><ul>
+<li><a class="reference internal" href="#ip-masquerading-with-ufw">IP masquerading with ufw</a><ul>
+<li><a class="reference internal" href="#enable-packet-forwarding">Enable packet forwarding</a></li>
+<li><a class="reference internal" href="#add-the-configuration">Add the configuration</a></li>
+<li><a class="reference internal" href="#restart-ufw">Restart ufw</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ip-masquerading-with-iptables">IP masquerading with iptables</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#logs">Logs</a></li>
+<li><a class="reference internal" href="#other-tools">Other tools</a></li>
+<li><a class="reference internal" href="#further-reading">Further reading</a></li>
+</ul>
+</li>
+</ul>
+
+      </div>
+    </div>
+   
+    
+  </div>
+
+    </aside>
+  </div>
+</div><script src="../../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../../_static/documentation_options.js?v=187304be"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/config-options.js"></script>
+    <script src="../../../_static/contributors.js"></script>
+    <script src="../../../_static/js/hoverxref.js"></script>
+    <script src="../../../_static/js/tooltipster.bundle.min.js"></script>
+    <script src="../../../_static/js/micromodal.min.js"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../../_static/js/footer.js?v=5acea47a"></script>
+    <script src="../../../_static/js/github_issue_links.js?v=9cdb08c1"></script>
+    <script src="../../../_static/js/bundle.js?v=4baf66b4"></script>
+    <script src="../../../_static/js/url_overwrite.js?v=fb510a0b"></script>
+    <script src="../../../_static/header-nav.js?v=e117ad08"></script>
+    
+<script>
+  const github_url = "https://github.com/canonical/ubuntu-server-documentation/";
+</script>
+</body>
+</html>

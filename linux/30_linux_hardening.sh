@@ -2,6 +2,10 @@
 
 # Audits or enforces a conservative host-hardening baseline locally or over SSH,
 # covering SSH settings, service state, and key sysctl values.
+#
+# Usage:
+#   ./30_linux_hardening.sh [audit|enforce|verify]
+#   ./30_linux_hardening.sh [audit|enforce|verify] --remote
 
 SCRIPT_BASENAME="$(basename "$0" .sh)"
 # shellcheck source=lib/common.sh

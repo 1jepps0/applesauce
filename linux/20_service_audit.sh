@@ -2,6 +2,9 @@
 
 # Runs protocol-aware service checks against configured hosts and records both
 # per-check results and a readable per-host summary.
+#
+# Usage:
+#   ./20_service_audit.sh
 
 SCRIPT_BASENAME="$(basename "$0" .sh)"
 # shellcheck source=lib/common.sh

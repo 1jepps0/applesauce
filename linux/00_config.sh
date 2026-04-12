@@ -2,6 +2,9 @@
 
 # Shared toolkit configuration for host inventory, service policy, SSH access,
 # credential rotation settings, and feature toggles.
+#
+# Usage:
+#   Edit this file before running the toolkit.
 
 # PCDC 2026 guide notes relevant to this toolkit:
 # - Blue team environments may include multiple Linux distros and BSD.

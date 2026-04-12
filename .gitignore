@@ -1,5 +1,6 @@
-logs/
-reports/
-backups/
+linux/logs/
+linux/reports/
+linux/backups/
 __pycache__/
 *.pyc
+.codex

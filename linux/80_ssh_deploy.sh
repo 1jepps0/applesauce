@@ -2,6 +2,9 @@
 
 # Copies the toolkit to remote hosts and runs selected remote commands using the
 # configured SSH authentication settings.
+#
+# Usage:
+#   ./80_ssh_deploy.sh [push|audit|service-audit]
 
 SCRIPT_BASENAME="$(basename "$0" .sh)"
 # shellcheck source=lib/common.sh

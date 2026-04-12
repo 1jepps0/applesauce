@@ -2,6 +2,10 @@
 
 # Reports pending package updates using the host's native package manager to
 # highlight obvious patch backlog without changing the system.
+#
+# Usage:
+#   ./66_package_audit.sh
+#   ./66_package_audit.sh --remote
 
 SCRIPT_BASENAME="$(basename "$0" .sh)"
 # shellcheck source=lib/common.sh

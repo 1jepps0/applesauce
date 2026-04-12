@@ -2,6 +2,10 @@
 
 # Audits or enforces host firewall allow-rules derived from the configured
 # per-host service matrix, locally or over SSH.
+#
+# Usage:
+#   ./50_service_allow_rules.sh [audit|enforce|verify]
+#   ./50_service_allow_rules.sh [audit|enforce|verify] --remote
 
 SCRIPT_BASENAME="$(basename "$0" .sh)"
 # shellcheck source=lib/common.sh

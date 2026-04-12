@@ -2,6 +2,10 @@
 
 # Reviews local account risk indicators such as unexpected admins, SSH keys,
 # sudoers, cron usage, and listening sockets.
+#
+# Usage:
+#   ./60_account_audit.sh
+#   ./60_account_audit.sh --remote
 
 SCRIPT_BASENAME="$(basename "$0" .sh)"
 # shellcheck source=lib/common.sh

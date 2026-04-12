@@ -2,6 +2,10 @@
 
 # Compares local listening ports against the mapped service policy for the host
 # and flags unexpected listeners.
+#
+# Usage:
+#   ./67_process_port_audit.sh
+#   ./67_process_port_audit.sh --remote
 
 SCRIPT_BASENAME="$(basename "$0" .sh)"
 # shellcheck source=lib/common.sh

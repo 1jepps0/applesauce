@@ -2,6 +2,9 @@
 
 # Bundles the latest reports and incident notes into a single evidence
 # directory for quick handoff and scoring support.
+#
+# Usage:
+#   ./95_evidence_report.sh
 
 SCRIPT_BASENAME="$(basename "$0" .sh)"
 # shellcheck source=lib/common.sh

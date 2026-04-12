@@ -2,6 +2,9 @@
 
 # Runs policy-limited exposure checks such as scoped nmap, Lynis, and simple
 # filesystem findings without acting as a broad scanner by default.
+#
+# Usage:
+#   ./90_vuln_wrapper.sh
 
 SCRIPT_BASENAME="$(basename "$0" .sh)"
 # shellcheck source=lib/common.sh

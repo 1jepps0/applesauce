@@ -2,6 +2,9 @@
 
 # Creates a markdown incident report template populated with basic attack and
 # host details for competition reporting.
+#
+# Usage:
+#   ./97_incident_report.sh <src_ip> <host> "<time>" "summary"
 
 SCRIPT_BASENAME="$(basename "$0" .sh)"
 # shellcheck source=lib/common.sh

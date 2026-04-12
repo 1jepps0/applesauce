@@ -2,6 +2,9 @@
 
 # Checks configured hosts for ICMP reachability, name resolution, and expected
 # TCP/UDP port reachability from the jumpbox.
+#
+# Usage:
+#   ./10_host_discovery.sh
 
 SCRIPT_BASENAME="$(basename "$0" .sh)"
 # shellcheck source=lib/common.sh

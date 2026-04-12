@@ -2,6 +2,9 @@
 
 # Shared helper library for config loading, logging, CSV/report helpers,
 # host-policy resolution, and SSH/staging wrappers.
+#
+# Usage:
+#   Source from toolkit scripts: source ./lib/common.sh
 
 set -o errexit
 set -o nounset

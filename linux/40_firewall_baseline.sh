@@ -2,6 +2,10 @@
 
 # Audits or enforces a minimal host firewall baseline for the detected backend,
 # preserving admin SSH access and the mapped service ports for the host.
+#
+# Usage:
+#   ./40_firewall_baseline.sh [audit|enforce|verify]
+#   ./40_firewall_baseline.sh [audit|enforce|verify] --remote
 
 SCRIPT_BASENAME="$(basename "$0" .sh)"
 # shellcheck source=lib/common.sh

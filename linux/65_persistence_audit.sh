@@ -2,6 +2,10 @@
 
 # Surveys common persistence locations including cron paths, systemd units,
 # startup directories, BSD startup files, and SUID/SGID files.
+#
+# Usage:
+#   ./65_persistence_audit.sh
+#   ./65_persistence_audit.sh --remote
 
 SCRIPT_BASENAME="$(basename "$0" .sh)"
 # shellcheck source=lib/common.sh

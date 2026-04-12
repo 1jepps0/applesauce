@@ -2,6 +2,9 @@
 
 # Verifies or rotates explicitly listed admin account passwords using a supplied
 # password source, with conservative safeguards around secret handling.
+#
+# Usage:
+#   ./70_credential_rotation.sh [audit|enforce|verify]
 
 SCRIPT_BASENAME="$(basename "$0" .sh)"
 # shellcheck source=lib/common.sh
